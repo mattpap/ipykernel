@@ -1,0 +1,14 @@
+*.sw[opn]
+*~
+
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
+install_manifest.txt
+
+/ialdor
+
+/profile*.json
+/*.ipynb
+/.ipynb_checkpoints/
