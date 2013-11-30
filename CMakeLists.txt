@@ -20,6 +20,7 @@ add_executable(ialdor src/ialdor.c
                       src/sockets.c
                       src/profile.c
                       src/concat.c
+                      src/json.c
                       src/uuid.c
                       ${ALDOR_SRC}/aldor-axlcomp.o
                       ${ALDOR_SRC}/aldor-cmdline.o)

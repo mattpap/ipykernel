@@ -5,6 +5,7 @@
 #include <jansson.h>
 
 #include "profile.h"
+#include "json.h"
 #include "uuid.h"
 
 void default_profile(Profile* profile) {
@@ -28,7 +29,7 @@ void init_profile(Profile* profile, const char* existing) {
 
     if (existing == NULL) {
         sprintf(name, "profile-%d.json", getpid());
-        printf("connect ipython with --existing %s", name);
+        printf("connect ipython with --existing %s\n", name);
 
         default_profile(profile);
 
@@ -54,27 +55,27 @@ void init_profile(Profile* profile, const char* existing) {
         fclose(file);
 
         if (!json_is_object(json)) {
-            fprintf(stderr, "error: expected a JSON object");
+            fprintf(stderr, "error: expected a JSON object, got %s\n", json_strof(json));
             json_decref(json);
             exit(1);
         }
 
-#define GET_STRING_KEY(json, value, key, dest)                             \
-        value = json_object_get(json, key);                                \
-        if (!json_is_string(value)) {                                      \
-            fprintf(stderr, "error: \"%s\" key must be a string", key);    \
-            json_decref(json);                                             \
-            exit(1);                                                       \
-        }                                                                  \
+#define GET_STRING_KEY(json, value, key, dest)                                                       \
+        value = json_object_get(json, key);                                                          \
+        if (!json_is_string(value)) {                                                                \
+            fprintf(stderr, "error: \"%s\" key must be a string, got %s\n", key, json_strof(value)); \
+            json_decref(json);                                                                       \
+            exit(1);                                                                                 \
+        }                                                                                            \
         dest = strdup(json_string_value(value));
 
-#define GET_INT_KEY(json, value, key, dest)                                \
-        value = json_object_get(json, key);                                \
-        if (!json_is_integer(value)) {                                     \
-            fprintf(stderr, "error: \"%s\" key must be an integer", key);  \
-            json_decref(json);                                             \
-            exit(1);                                                       \
-        }                                                                  \
+#define GET_INT_KEY(json, value, key, dest)                                                            \
+        value = json_object_get(json, key);                                                            \
+        if (!json_is_integer(value)) {                                                                 \
+            fprintf(stderr, "error: \"%s\" key must be an integer, got %s\n", key, json_strof(value)); \
+            json_decref(json);                                                                         \
+            exit(1);                                                                                   \
+        }                                                                                              \
         dest = json_integer_value(value);
 
         GET_STRING_KEY(json, value, "ip", profile->ip);
