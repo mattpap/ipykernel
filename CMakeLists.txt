@@ -8,6 +8,12 @@ endif ()
 
 set(ALDOR_SRC ${ALDOR}/aldor/aldor/src)
 
+if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug)
+endif ()
+
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb")
+
 link_directories(${ALDOR_SRC})
 
 add_executable(ialdor src/ialdor.c
