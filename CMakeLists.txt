@@ -17,7 +17,10 @@ set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb")
 link_directories(${ALDOR_SRC})
 
 add_executable(ialdor src/ialdor.c
+                      src/sockets.c
+                      src/profile.c
                       src/concat.c
+                      src/uuid.c
                       ${ALDOR_SRC}/aldor-axlcomp.o
                       ${ALDOR_SRC}/aldor-cmdline.o)
 
@@ -25,6 +28,9 @@ target_link_libraries(ialdor libphase.a libstruct.a libgen.a libport.a)
 
 find_library(M_LIB m)
 target_link_libraries(ialdor ${M_LIB})
+
+find_library(M_UUID uuid)
+target_link_libraries(ialdor ${M_UUID})
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
