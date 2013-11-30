@@ -11,6 +11,7 @@ set(ALDOR_SRC ${ALDOR}/aldor/aldor/src)
 link_directories(${ALDOR_SRC})
 
 add_executable(ialdor src/ialdor.c
+                      src/concat.c
                       ${ALDOR_SRC}/aldor-axlcomp.o
                       ${ALDOR_SRC}/aldor-cmdline.o)
 
