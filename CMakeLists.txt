@@ -19,6 +19,7 @@ link_directories(${ALDOR_SRC})
 add_executable(ialdor src/ialdor.c
                       src/sockets.c
                       src/profile.c
+                      src/msg.c
                       src/util.c
                       src/concat.c
                       ${ALDOR_SRC}/aldor-axlcomp.o
