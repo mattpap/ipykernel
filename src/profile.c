@@ -5,8 +5,7 @@
 #include <jansson.h>
 
 #include "profile.h"
-#include "json.h"
-#include "uuid.h"
+#include "util.h"
 
 void default_profile(Profile* profile) {
     int port0 = 5678;
