@@ -17,8 +17,10 @@ set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -g -ggdb -Wall")
 link_directories(${ALDOR_SRC})
 
 add_executable(ialdor src/ialdor.c
-                      src/sockets.c
                       src/profile.c
+                      src/sockets.c
+                      src/heartbeat.c
+                      src/eventloop.c
                       src/msg.c
                       src/util.c
                       src/concat.c

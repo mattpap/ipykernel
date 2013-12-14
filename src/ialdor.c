@@ -1,13 +1,10 @@
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-
-#include <openssl/hmac.h>
-#include <jansson.h>
-#include <zmq.h>
+#include <stdio.h>
+#include <pthread.h>
 
 #include "profile.h"
 #include "sockets.h"
+#include "heartbeat.h"
+#include "eventloop.h"
 
 int main(int argc, char** argv) {
     Profile profile;
@@ -16,15 +13,11 @@ int main(int argc, char** argv) {
     init_profile(&profile, NULL);
     init_sockets(&sockets, &profile);
 
-    while (1) {
-        zmq_msg_t message;
-        zmq_msg_init(&message);
-        zmq_msg_recv(&message, sockets.requests, 0);
-        //  TODO
-        zmq_msg_close(&message);
-        if (!zmq_msg_more(&message))
-            break;
-    }
+    init_heartbeat(&sockets);
 
+    init_eventloop(sockets.requests);
+    init_eventloop(sockets.control);
+
+    pthread_exit(NULL);
     return 0;
 }
