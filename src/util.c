@@ -44,6 +44,43 @@ const char* json_strof(const json_t* json) {
     }
 }
 
+char* json_get_string_key(const json_t* obj, const char* key) {
+    json_t* value = json_object_get(obj, key);
+    if (!json_is_string(value)) {
+        fprintf(stderr, "error: \"%s\" key must be a string, got %s\n", key, json_strof(value));
+        exit(1);
+    }
+    return strdup(json_string_value(value));
+}
+
+int json_get_integer_key(const json_t* obj, const char* key) {
+    json_t* value = json_object_get(obj, key);
+    if (!json_is_integer(value)) {
+        fprintf(stderr, "error: \"%s\" key must be an integer, got %s\n", key, json_strof(value));
+        exit(1);
+    }
+    return json_integer_value(value);
+}
+
+bool json_get_bool_key(const json_t* obj, const char* key) {
+    json_t* value = json_object_get(obj, key);
+    if (!json_is_boolean(value)) {
+        fprintf(stderr, "error: \"%s\" key must be a boolean, got %s\n", key, json_strof(value));
+        exit(1);
+    }
+    return json_is_true(value);
+}
+
+json_t* json_string_array(char** array, int count) {
+    json_t* json = json_array();
+    int i;
+
+    for (i = 0; i < count; i++)
+        json_array_append(json, json_string(array[i]));
+
+    return json;
+}
+
 char* srecv(void* socket) {
     zmq_msg_t message;
     char* string;
