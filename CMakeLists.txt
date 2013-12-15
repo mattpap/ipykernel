@@ -18,6 +18,7 @@ link_directories(${ALDOR_SRC})
 include_directories(${ALDOR_SRC})
 
 add_executable(ialdor src/ialdor.c
+                      src/options.c
                       src/profile.c
                       src/sockets.c
                       src/heartbeat.c
