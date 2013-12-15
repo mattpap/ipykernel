@@ -3,19 +3,18 @@
 #include <pthread.h>
 #include <zmq.h>
 
-#include "sockets.h"
+#include "globals.h"
 
 void* heartbeat(void* data) {
-    Sockets* sockets = (Sockets*)data;
-    zmq_proxy(sockets->heartbeat, sockets->heartbeat, NULL);
+    zmq_proxy(sockets.heartbeat, sockets.heartbeat, NULL);
     pthread_exit(NULL);
     return NULL;
 }
 
-void init_heartbeat(Sockets* sockets) {
+void init_heartbeat() {
     pthread_t thread;
 
-    if (pthread_create(&thread, NULL, heartbeat, (void*)sockets)) {
+    if (pthread_create(&thread, NULL, heartbeat, NULL)) {
         fprintf(stderr, "error: unable to create heartbeat thread");
         exit(1);
     }

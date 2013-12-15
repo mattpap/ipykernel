@@ -8,7 +8,7 @@
 #include <jansson.h>
 #include <zmq.h>
 
-#include "profile.h"
+#include "globals.h"
 
 #define UUID_STRING_SIZE 36
 
@@ -109,21 +109,21 @@ int ssend(void* socket, const char* string, bool more) {
     return rc;
 }
 
-char* hmac(Profile* profile, const char* s1, ...) {
+char* hmac(const char* s1, ...) {
     const EVP_MD* md;
     HMAC_CTX ctx;
     va_list args;
     char* digest;
     char* s;
 
-    md = EVP_get_digestbyname(profile->signature_scheme);
+    md = EVP_get_digestbyname(profile.signature_scheme);
     if (md == NULL) {
-        fprintf(stderr, "error: \"%s\" digest algorithm not supported\n", profile->signature_scheme);
+        fprintf(stderr, "error: \"%s\" digest algorithm not supported\n", profile.signature_scheme);
         exit(1);
     }
 
     HMAC_CTX_init(&ctx);
-    HMAC_Init(&ctx, profile->key, strlen(profile->key), md);
+    HMAC_Init(&ctx, profile.key, strlen(profile.key), md);
 
     va_start(args, s1);
     while ((s = va_arg(args, char*))) {

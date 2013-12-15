@@ -1,8 +1,6 @@
 #ifndef __IALDOR_SOCKETS_H__
 #define __IALDOR_SOCKETS_H__
 
-#include "profile.h"
-
 typedef struct Sockets {
     void* ctx;
     void* publish;
@@ -12,7 +10,7 @@ typedef struct Sockets {
     void* heartbeat;
 } Sockets;
 
-void init_sockets(Sockets* sockets, Profile* profile);
+void init_sockets(Sockets* sockets);
 void free_sockets(Sockets* sockets);
 
 #endif // __IALDOR_SOCKETS_H__

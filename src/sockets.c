@@ -1,19 +1,18 @@
 #include <stdlib.h>
 #include <string.h>
-
 #include <zmq.h>
 
-#include "profile.h"
+#include "globals.h"
 #include "sockets.h"
 #include "concat.h"
 
-char* endpoint(Profile* profile, int port) {
+char* endpoint(int port) {
     char str_port[32];
     sprintf(str_port, "%d", port);
-    return concat(profile->transport, "://", profile->ip, ":", str_port, NULL);
+    return concat(profile.transport, "://", profile.ip, ":", str_port, NULL);
 }
 
-void init_sockets(Sockets* sockets, Profile* profile) {
+void init_sockets(Sockets* sockets) {
     sockets->ctx = zmq_ctx_new();
 
     sockets->publish = zmq_socket(sockets->ctx, ZMQ_PUB);
@@ -22,11 +21,11 @@ void init_sockets(Sockets* sockets, Profile* profile) {
     sockets->stdin = zmq_socket(sockets->ctx, ZMQ_ROUTER);
     sockets->heartbeat = zmq_socket(sockets->ctx, ZMQ_REP);
 
-    char* iopub = endpoint(profile, profile->iopub_port);
-    char* requests = endpoint(profile, profile->shell_port);
-    char* control = endpoint(profile, profile->control_port);
-    char* stdin = endpoint(profile, profile->stdin_port);
-    char* heartbeat = endpoint(profile, profile->hb_port);
+    char* iopub = endpoint(profile.iopub_port);
+    char* requests = endpoint(profile.shell_port);
+    char* control = endpoint(profile.control_port);
+    char* stdin = endpoint(profile.stdin_port);
+    char* heartbeat = endpoint(profile.hb_port);
 
     zmq_bind(sockets->publish, iopub);
     zmq_bind(sockets->requests, requests);

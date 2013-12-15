@@ -2,6 +2,7 @@
 #define __IALDOR_UTIL_H__
 
 #include <stdbool.h>
+#include <jansson.h>
 #include "profile.h"
 
 char* uuid4();
@@ -12,6 +13,6 @@ bool json_get_bool_key(const json_t* obj, const char* key);
 json_t* json_string_array(char** array, int count);
 char* srecv(void* socket);
 int ssend(void* socket, const char* string, bool more);
-char* hmac(Profile* profile, const char* s1, ...);
+char* hmac(const char* s1, ...);
 
 #endif // __IALDOR_UTIL_H__
