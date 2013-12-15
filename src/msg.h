@@ -5,22 +5,26 @@
 #include <uuid/uuid.h>
 
 typedef enum ExecutionStatus {
-    status_ok,
+    status_ok = 0,
     status_error,
     status_abort,
 } ExecutionStatus;
 
 typedef enum HistAccessType {
-    hist_access_range,
+    hist_access_range = 0,
     hist_access_tail,
     hist_access_search,
 } HistAccessType;
 
 typedef enum ExecutionState {
-    state_busy,
+    state_busy = 0,
     state_idle,
     state_starting,
 } ExecutionState;
+
+#define NUM_EXECUTION_STATUS (status_abort+1)
+#define NUM_HIST_ACCESS_TYPE (hist_access_search+1)
+#define NUM_EXECUTION_STATE  (state_starting+1)
 
 typedef struct ExecuteRequest {
     // Source code to be executed by the kernel, one or more lines.
@@ -442,7 +446,7 @@ typedef struct InputReply {
 } InputReply;
 
 typedef enum MsgType {
-    msg_execute_request,
+    msg_execute_request = 0,
     msg_execute_reply,
     msg_object_info_request,
     msg_object_info_reply,
@@ -465,6 +469,8 @@ typedef enum MsgType {
     msg_input_request,
     msg_input_reply,
 } MsgType;
+
+#define NUM_MSG_TYPE (msg_input_reply+1)
 
 typedef struct Header {
     char* msg_id;
@@ -506,5 +512,16 @@ typedef struct Msg {
     void* metadata;
     Content content;
 } Msg;
+
+#include <jansson.h>
+
+void load_header(const json_t* json, Header* header);
+json_t* dump_header(const Header* header);
+
+void load_metadata(const json_t* json, void** metadata);
+json_t* dump_metadata(const void* metadata);
+
+void load_content(const json_t* json, MsgType msg_type, Content* content);
+json_t* dump_content(MsgType msg_type, const Content* content);
 
 #endif // __IALDOR_MSG_H__

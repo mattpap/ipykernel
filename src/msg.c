@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <string.h>
 #include <jansson.h>
 
 #include "msg.h"
@@ -5,69 +7,114 @@
 
 #define pass
 
-const char* msg_strof(MsgType msg_type) {
-    return "";
-}
+static const char* msg_types[NUM_MSG_TYPE] = {
+    "execute_request",
+    "execute_reply",
+    "object_info_request",
+    "object_info_reply",
+    "complete_request",
+    "complete_reply",
+    "history_request",
+    "history_reply",
+    "connect_request",
+    "connect_reply",
+    "kernel_info_request",
+    "kernel_info_reply",
+    "shutdown_request",
+    "shutdown_reply",
+    "stream",
+    "display_data",
+    "pyin",
+    "pyout",
+    "pyerr",
+    "status",
+    "input_request",
+    "input_reply",
+};
 
-MsgType msg_type_from_string(const char* msg_type) {
-    if (strcmp(msg_type, "execute_request"))
-        return msg_execute_request;
-    else if (strcmp(msg_type, "execute_reply"))
-        return msg_execute_reply;
-    else if (strcmp(msg_type, "object_info_request"))
-        return msg_object_info_request;
-    else if (strcmp(msg_type, "object_info_reply"))
-        return msg_object_info_reply;
-    else if (strcmp(msg_type, "complete_request"))
-        return msg_complete_request;
-    else if (strcmp(msg_type, "complete_reply"))
-        return msg_complete_reply;
-    else if (strcmp(msg_type, "history_request"))
-        return msg_history_request;
-    else if (strcmp(msg_type, "history_reply"))
-        return msg_history_reply;
-    else if (strcmp(msg_type, "connect_request"))
-        return msg_connect_request;
-    else if (strcmp(msg_type, "connect_reply"))
-        return msg_connect_reply;
-    else if (strcmp(msg_type, "kernel_info_request"))
-        return msg_kernel_info_request;
-    else if (strcmp(msg_type, "kernel_info_reply"))
-        return msg_kernel_info_reply;
-    else if (strcmp(msg_type, "shutdown_request"))
-        return msg_shutdown_request;
-    else if (strcmp(msg_type, "shutdown_reply"))
-        return msg_shutdown_reply;
-    else if (strcmp(msg_type, "stream"))
-        return msg_stream;
-    else if (strcmp(msg_type, "display_data"))
-        return msg_display_data;
-    else if (strcmp(msg_type, "pyin"))
-        return msg_pyin;
-    else if (strcmp(msg_type, "pyout"))
-        return msg_pyout;
-    else if (strcmp(msg_type, "pyerr"))
-        return msg_pyerr;
-    else if (strcmp(msg_type, "status"))
-        return msg_status;
-    else if (strcmp(msg_type, "input_request"))
-        return msg_input_request;
-    else if (strcmp(msg_type, "input_reply"))
-        return msg_input_reply;
-    else {
-        fprintf(stderr, "error: \"%s\" unsupported message type", msg_type);
-        exit(1);
+MsgType load_msg_type(const char* msg_type) {
+    int i;
+
+    for (i = 0; i < NUM_MSG_TYPE; i++) {
+        if (strcmp(msg_type, msg_types[i]))
+            return (MsgType)i;
     }
+
+    fprintf(stderr, "error: \"%s\" unsupported message type\n", msg_type);
+    exit(1);
 }
 
-void load_header(const json_t* json, Header* header) {
-    // uuid_t msg_id;
-    // char* username;
-    // uuid_t session;
-    // MsgType msg_type;
+const char* dump_msg_type(MsgType msg_type) {
+    return msg_types[(int)msg_type];
 }
 
-void load_execute_request(const json_t* json, ExecuteRequest* execute_request) {
+static const char* execution_statuses[NUM_EXECUTION_STATUS] = {
+    "ok",
+    "error",
+    "abort",
+};
+
+ExecutionStatus load_execution_status(const char* execution_status) {
+    int i;
+
+    for (i = 0; i < NUM_EXECUTION_STATUS; i++) {
+        if (strcmp(execution_status, execution_statuses[i]))
+            return (ExecutionStatus)i;
+    }
+
+    fprintf(stderr, "error: \"%s\" unsupported execution status\n", execution_status);
+    exit(1);
+}
+
+const char* dump_execution_status(ExecutionStatus execution_status) {
+    return execution_statuses[(int)execution_status];
+}
+
+static const char* hist_access_types[NUM_HIST_ACCESS_TYPE] = {
+    "range",
+    "tail",
+    "search",
+};
+
+HistAccessType load_hist_access_type(const char* hist_access_type) {
+    int i;
+
+    for (i = 0; i < NUM_HIST_ACCESS_TYPE; i++) {
+        if (strcmp(hist_access_type, hist_access_types[i]))
+            return (HistAccessType)i;
+    }
+
+    fprintf(stderr, "error: \"%s\" unsupported history access type\n", hist_access_type);
+    exit(1);
+}
+
+const char* dump_hist_access_type(HistAccessType hist_access_type) {
+    return hist_access_types[(int)hist_access_type];
+}
+
+static const char* execution_states[NUM_EXECUTION_STATE] = {
+    "busy",
+    "idle",
+    "starting",
+};
+
+ExecutionState load_execution_state(const char* execution_state) {
+    int i;
+
+    for (i = 0; i < NUM_EXECUTION_STATE; i++) {
+        if (strcmp(execution_state, execution_states[i]))
+            return (ExecutionState)i;
+    }
+
+    fprintf(stderr, "error: \"%s\" unsupported execution state\n", execution_state);
+    exit(1);
+}
+
+const char* dump_execution_state(ExecutionState execution_state) {
+    return execution_states[(int)execution_state];
+}
+
+static void load_execute_request(const json_t* json, ExecuteRequest* execute_request) {
     execute_request->code = json_get_string_key(json, "code");
     execute_request->silent = json_get_bool_key(json, "silent");
     execute_request->store_history = json_get_bool_key(json, "store_history");
@@ -76,32 +123,22 @@ void load_execute_request(const json_t* json, ExecuteRequest* execute_request) {
     execute_request->allow_stdin = json_get_bool_key(json, "allow_stdin");
 }
 
-void load_object_info_request(const json_t* json, ObjectInfoRequest* object_info_request) {
+static void load_object_info_request(const json_t* json, ObjectInfoRequest* object_info_request) {
     object_info_request->oname = json_get_string_key(json, "oname");
     object_info_request->detail_level = json_get_integer_key(json, "detail_level");
 }
 
-void load_complete_request(const json_t* json, CompleteRequest* complete_request) {
+static void load_complete_request(const json_t* json, CompleteRequest* complete_request) {
     complete_request->text = json_get_string_key(json, "code");
     complete_request->line = json_get_string_key(json, "code");
     complete_request->block = json_get_string_key(json, "code");
     complete_request->cursor_pos = json_get_integer_key(json, "cursor_pos");
 }
 
-void load_history_request(const json_t* json, HistoryRequest* history_request) {
+static void load_history_request(const json_t* json, HistoryRequest* history_request) {
     history_request->output = json_get_bool_key(json, "output");
     history_request->raw = json_get_bool_key(json, "raw");
-    char* hist_access_type = json_get_string_key(json, "hist_access_type");
-    if (strcmp(hist_access_type, "range"))
-        history_request->hist_access_type = hist_access_range;
-    else if (strcmp(hist_access_type, "tail"))
-        history_request->hist_access_type = hist_access_tail;
-    else if (strcmp(hist_access_type, "search"))
-        history_request->hist_access_type = hist_access_search;
-    else {
-        fprintf(stderr, "error: unexpected \"%s\" value for HistAccessType enumeration", hist_access_type);
-        exit(1);
-    }
+    history_request->hist_access_type = load_hist_access_type(json_get_string_key(json, "hist_access_type"));
     history_request->session = json_get_integer_key(json, "session");
     history_request->start = json_get_integer_key(json, "start");
     history_request->stop = json_get_integer_key(json, "stop");
@@ -110,47 +147,23 @@ void load_history_request(const json_t* json, HistoryRequest* history_request) {
     history_request->unique = json_get_bool_key(json, "unique");
 }
 
-void load_connect_request(const json_t* json, ConnectRequest* connect_request) {
+static void load_connect_request(const json_t* json, ConnectRequest* connect_request) {
     pass;
 }
 
-void load_kernel_info_request(const json_t* json, KernelInfoRequest* kernel_info_request) {
+static void load_kernel_info_request(const json_t* json, KernelInfoRequest* kernel_info_request) {
     pass;
 }
 
-void load_shutdown_request(const json_t* json, ShutdownRequest* shutdown_request) {
+static void load_shutdown_request(const json_t* json, ShutdownRequest* shutdown_request) {
     pass;
 }
 
-void load_input_reply(const json_t* json, InputReply* input_reply) {
+static void load_input_reply(const json_t* json, InputReply* input_reply) {
     input_reply->value = json_get_string_key(json, "value");
 }
 
-void load_content(MsgType msg_type, const json_t* json, Content* content) {
-    switch (msg_type) {
-        case msg_execute_request:
-            load_execute_request(json, &(content->execute_request));
-        case msg_complete_request:
-            load_complete_request(json, &(content->complete_request));
-        case msg_kernel_info_request:
-            load_kernel_info_request(json, &(content->kernel_info_request));
-        case msg_object_info_request:
-            load_object_info_request(json, &(content->object_info_request));
-        case msg_connect_request:
-            load_connect_request(json, &(content->connect_request));
-        case msg_shutdown_request:
-            load_shutdown_request(json, &(content->shutdown_request));
-        case msg_history_request:
-            load_history_request(json, &(content->history_request));
-        case msg_input_reply:
-            load_input_reply(json, &(content->input_reply));
-        default:
-            fprintf(stderr, "error: unexpected message type: \"%s\"", msg_strof(msg_type));
-            exit(1);
-    }
-}
-
-json_t* dump_execute_reply(ExecuteReply* execute_reply) {
+static json_t* dump_execute_reply(const ExecuteReply* execute_reply) {
     json_t* json = json_object();
     json_object_set(json, "execution_count", json_integer(execute_reply->execution_count));
     switch (execute_reply->status) {
@@ -171,67 +184,135 @@ json_t* dump_execute_reply(ExecuteReply* execute_reply) {
     return json;
 }
 
-json_t* dump_object_info_reply(ObjectInfoReply* object_info_reply) {
+static json_t* dump_object_info_reply(const ObjectInfoReply* object_info_reply) {
     json_t* json = json_object();
     return json;
 }
 
-json_t* dump_complete_reply(CompleteReply* complete_reply) {
+static json_t* dump_complete_reply(const CompleteReply* complete_reply) {
     json_t* json = json_object();
     return json;
 }
 
-json_t* dump_history_reply(HistoryReply* history_reply) {
+static json_t* dump_history_reply(const HistoryReply* history_reply) {
     json_t* json = json_object();
     return json;
 }
 
-json_t* dump_connect_reply(ConnectReply* connect_reply) {
+static json_t* dump_connect_reply(const ConnectReply* connect_reply) {
     json_t* json = json_object();
     return json;
 }
 
-json_t* dump_kernel_info_reply(KernelInfoReply* kernel_info_reply) {
+static json_t* dump_kernel_info_reply(const KernelInfoReply* kernel_info_reply) {
     json_t* json = json_object();
     return json;
 }
 
-json_t* dump_shutdown_reply(ShutdownReply* shutdown_reply) {
+static json_t* dump_shutdown_reply(const ShutdownReply* shutdown_reply) {
     json_t* json = json_object();
     return json;
 }
 
-json_t* dump_stream(Stream* stream) {
+static json_t* dump_stream(const Stream* stream) {
     json_t* json = json_object();
     return json;
 }
 
-json_t* dump_display_data(DisplayData* display_data) {
+static json_t* dump_display_data(const DisplayData* display_data) {
     json_t* json = json_object();
     return json;
 }
 
-json_t* dump_pyin(PyIn* pyin) {
+static json_t* dump_pyin(const PyIn* pyin) {
     json_t* json = json_object();
     return json;
 }
 
-json_t* dump_pyout(PyOut* pyout) {
+static json_t* dump_pyout(const PyOut* pyout) {
     json_t* json = json_object();
     return json;
 }
 
-json_t* dump_pyerr(PyErr* pyerr) {
+static json_t* dump_pyerr(const PyErr* pyerr) {
     json_t* json = json_object();
     return json;
 }
 
-json_t* dump_status(Status* status) {
+static json_t* dump_status(const Status* status) {
+    json_t* json = json_object();
+    json_object_set(json, "execution_state", json_string(dump_execution_status(status->execution_state)));
+    return json;
+}
+
+static json_t* dump_input_request(const InputRequest* input_request) {
     json_t* json = json_object();
     return json;
 }
 
-json_t* dump_input_request(InputRequest* input_request) {
-    json_t* json = json_object();
+void load_header(const json_t* json, Header* header) {
+    header->msg_id = json_get_string_key(json, "msg_id");
+    header->username = json_get_string_key(json, "username");
+    header->session = json_get_string_key(json, "session");
+    header->msg_type = load_msg_type(json_get_string_key(json, "msg_type"));
+}
+
+json_t* dump_header(const Header* header) {
+    json_t* json = NULL;
+
+    if (header != NULL) {
+        json = json_object();
+        json_object_set(json, "msg_id", json_string(header->msg_id));
+        json_object_set(json, "username", json_string(header->username));
+        json_object_set(json, "session", json_string(header->session));
+        json_object_set(json, "msg_type", json_string(dump_msg_type(header->msg_type)));
+    }
+
     return json;
+}
+
+void load_metadata(const json_t* json, void** metadata) {
+    metadata = NULL;
+}
+
+json_t* dump_metadata(const void* metadata) {
+    return NULL;
+}
+
+void load_content(const json_t* json, MsgType msg_type, Content* content) {
+    switch (msg_type) {
+        case msg_execute_request:     load_execute_request(json, &content->execute_request);
+        case msg_complete_request:    load_complete_request(json, &content->complete_request);
+        case msg_kernel_info_request: load_kernel_info_request(json, &content->kernel_info_request);
+        case msg_object_info_request: load_object_info_request(json, &content->object_info_request);
+        case msg_connect_request:     load_connect_request(json, &content->connect_request);
+        case msg_shutdown_request:    load_shutdown_request(json, &content->shutdown_request);
+        case msg_history_request:     load_history_request(json, &content->history_request);
+        case msg_input_reply:         load_input_reply(json, &content->input_reply);
+        default:
+            fprintf(stderr, "error: 1unexpected message type: \"%s\"\n", dump_msg_type(msg_type));
+            exit(1);
+    }
+}
+
+json_t* dump_content(MsgType msg_type, const Content* content) {
+    switch (msg_type) {
+        case msg_execute_reply:     return dump_execute_reply(&content->execute_reply);
+        case msg_complete_reply:    return dump_complete_reply(&content->complete_reply);
+        case msg_kernel_info_reply: return dump_kernel_info_reply(&content->kernel_info_reply);
+        case msg_object_info_reply: return dump_object_info_reply(&content->object_info_reply);
+        case msg_connect_reply:     return dump_connect_reply(&content->connect_reply);
+        case msg_shutdown_reply:    return dump_shutdown_reply(&content->shutdown_reply);
+        case msg_history_reply:     return dump_history_reply(&content->history_reply);
+        case msg_input_request:     return dump_input_request(&content->input_request);
+        case msg_stream:            return dump_stream(&content->stream);
+        case msg_display_data:      return dump_display_data(&content->display_data);
+        case msg_pyin:              return dump_pyin(&content->pyin);
+        case msg_pyout:             return dump_pyout(&content->pyout);
+        case msg_pyerr:             return dump_pyerr(&content->pyerr);
+        case msg_status:            return dump_status(&content->status);
+        default:
+            fprintf(stderr, "error: 2unexpected message type: \"%s\"\n", dump_msg_type(msg_type));
+            exit(1);
+    }
 }
