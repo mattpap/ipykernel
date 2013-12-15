@@ -1,6 +1,8 @@
 #ifndef __IALDOR_SOCKETS_H__
 #define __IALDOR_SOCKETS_H__
 
+#include "profile.h"
+
 typedef struct Sockets {
     void* ctx;
     void* publish;
