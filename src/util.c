@@ -151,12 +151,12 @@ char* hmac(const char* s1, ...) {
 
     va_start(args, s1);
     while ((s = va_arg(args, char*))) {
-        HMAC_Update(&ctx, s, strlen(s));
+        HMAC_Update(&ctx, (const unsigned char*)s, strlen(s));
     }
     va_end(args);
 
     digest = malloc(EVP_MAX_MD_SIZE+1);
-    HMAC_Final(&ctx, digest, NULL);
+    HMAC_Final(&ctx, (unsigned char*)digest, NULL);
     HMAC_CTX_cleanup(&ctx);
 
     return digest;
