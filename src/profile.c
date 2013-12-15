@@ -48,7 +48,19 @@ void init_profile(Profile* profile, const char* existing) {
         fclose(file);
     } else {
         file = fopen(existing, "r");
+
+        if (!file) {
+            fprintf(stderr, "error: can't open %s\n", existing);
+            exit(1);
+        }
+
         json = json_loadf(file, 0, NULL);
+
+        if (!json) {
+            fprintf(stderr, "error: can't parse JSON from %s\n", existing);
+            exit(1);
+        }
+
         fclose(file);
 
         if (!json_is_object(json)) {
