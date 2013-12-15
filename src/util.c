@@ -158,6 +158,8 @@ char* hmac(const char* s1, ...) {
     HMAC_CTX_init(&ctx);
     HMAC_Init(&ctx, profile.key, strlen(profile.key), md);
 
+    HMAC_Update(&ctx, (const unsigned char*)s1, strlen(s1));
+
     va_start(args, s1);
     while ((s = va_arg(args, char*))) {
         HMAC_Update(&ctx, (const unsigned char*)s, strlen(s));
