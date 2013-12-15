@@ -3,12 +3,12 @@
 #include <pthread.h>
 
 #include "globals.h"
-#include "util.h"
 #include "options.h"
 #include "profile.h"
 #include "sockets.h"
 #include "heartbeat.h"
 #include "eventloop.h"
+#include "communication.h"
 
 int main(int argc, char** argv) {
     init_options(&argc, &argv, &options);
@@ -16,6 +16,8 @@ int main(int argc, char** argv) {
     init_sockets(&sockets);
 
     init_heartbeat();
+
+    send_status(state_starting);
 
     init_eventloop(sockets.requests);
     init_eventloop(sockets.control);

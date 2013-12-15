@@ -23,6 +23,7 @@ add_executable(ialdor src/ialdor.c
                       src/sockets.c
                       src/heartbeat.c
                       src/eventloop.c
+                      src/communication.c
                       src/interpreter.c
                       src/msg.c
                       src/util.c
