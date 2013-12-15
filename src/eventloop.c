@@ -25,7 +25,7 @@ void init_eventloop(void* socket) {
     pthread_t thread;
 
     if (pthread_create(&thread, NULL, eventloop, socket)) {
-        fprintf(stderr, "error: unable to create event loop thread");
+        fprintf(stderr, "error: unable to create event loop thread\n");
         exit(1);
     }
 }

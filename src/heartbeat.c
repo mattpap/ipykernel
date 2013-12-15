@@ -15,7 +15,7 @@ void init_heartbeat() {
     pthread_t thread;
 
     if (pthread_create(&thread, NULL, heartbeat, NULL)) {
-        fprintf(stderr, "error: unable to create heartbeat thread");
+        fprintf(stderr, "error: unable to create heartbeat thread\n");
         exit(1);
     }
 }
