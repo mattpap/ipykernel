@@ -29,6 +29,7 @@ static const char* json_type_strings[] = {
     "true",
     "false",
     "null",
+    "???",
 };
 
 const char* json_strof(const json_t* json) {
@@ -41,6 +42,7 @@ const char* json_strof(const json_t* json) {
         case JSON_TRUE:    return json_type_strings[5];
         case JSON_FALSE:   return json_type_strings[6];
         case JSON_NULL:    return json_type_strings[7];
+        default:           return json_type_strings[8];
     }
 }
 
