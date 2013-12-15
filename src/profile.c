@@ -17,7 +17,7 @@ void default_profile(Profile* profile) {
     profile->shell_port = port0+3;
     profile->iopub_port = port0+4;
     profile->key = uuid4();
-    profile->signature_scheme = strdup("sha256");
+    profile->signature_scheme = strdup("hmac-sha256");
 }
 
 void init_profile(Profile* profile, const char* existing) {
