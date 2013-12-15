@@ -5,21 +5,21 @@
 #include <uuid/uuid.h>
 
 typedef enum ExecutionStatus {
-    ok,
-    error,
-    _abort,
+    status_ok,
+    status_error,
+    status_abort,
 } ExecutionStatus;
 
 typedef enum HistAccessType {
-    range,
-    tail,
-    search,
+    hist_access_range,
+    hist_access_tail,
+    hist_access_search,
 } HistAccessType;
 
 typedef enum ExecutionState {
-    busy,
-    idle,
-    starting,
+    state_busy,
+    state_idle,
+    state_starting,
 } ExecutionState;
 
 typedef struct ExecuteRequest {
@@ -85,6 +85,7 @@ typedef struct ExecuteErrorReply {
     // of strings, since that requires only minimal changes to ultratb as
     // written.
     char** traceback;
+    int num_traceback;
 } ExecuteErrorReply;
 
 typedef struct ExecuteAbortReply {
@@ -466,41 +467,44 @@ typedef enum MsgType {
 } MsgType;
 
 typedef struct Header {
-    uuid_t msg_id;
+    char* msg_id;
     char* username;
-    uuid_t session;
+    char* session;
     MsgType msg_type;
 } Header;
 
+typedef union Content {
+    ExecuteRequest execute_request;
+    ExecuteReply execute_reply;
+    ObjectInfoRequest object_info_request;
+    ObjectInfoReply object_info_reply;
+    CompleteRequest complete_request;
+    CompleteReply complete_reply;
+    HistoryRequest history_request;
+    HistoryReply history_reply;
+    ConnectRequest connect_request;
+    ConnectReply connect_reply;
+    KernelInfoRequest kernel_info_request;
+    KernelInfoReply kernel_info_reply;
+    ShutdownRequest shutdown_request;
+    ShutdownReply shutdown_reply;
+    Stream stream;
+    DisplayData display_data;
+    PyIn pyin;
+    PyOut pyout;
+    PyErr pyerr;
+    Status status;
+    InputRequest input_request;
+    InputReply input_reply;
+} Content;
+
 typedef struct Msg {
     char** idents;
-    Header* header;
+    int num_idents;
+    Header header;
     Header* parent_header;
     void* metadata;
-    union {
-        ExecuteRequest execute_request;
-        ExecuteReply execute_reply;
-        ObjectInfoRequest object_info_request;
-        ObjectInfoReply object_info_reply;
-        CompleteRequest complete_request;
-        CompleteReply complete_reply;
-        HistoryRequest history_request;
-        HistoryReply history_reply;
-        ConnectRequest connect_request;
-        ConnectReply connect_reply;
-        KernelInfoRequest kernel_info_request;
-        KernelInfoReply kernel_info_reply;
-        ShutdownRequest shutdown_request;
-        ShutdownReply shutdown_reply;
-        Stream stream;
-        DisplayData display_data;
-        PyIn pyin;
-        PyOut pyout;
-        PyErr pyerr;
-        Status status;
-        InputRequest input_request;
-        InputReply input_reply;
-    } content;
+    Content content;
 } Msg;
 
 #endif // __IALDOR_MSG_H__
