@@ -137,8 +137,10 @@ char* hmac(const char* s1, ...) {
     const EVP_MD* md;
     HMAC_CTX ctx;
     va_list args;
-    char* digest;
     char* s;
+    unsigned char digest[EVP_MAX_MD_SIZE];
+    unsigned int i, digest_size;
+    char* hex_digest;
 
     OpenSSL_add_all_digests();
 
@@ -162,9 +164,15 @@ char* hmac(const char* s1, ...) {
     }
     va_end(args);
 
-    digest = malloc(EVP_MAX_MD_SIZE+1);
-    HMAC_Final(&ctx, (unsigned char*)digest, NULL);
+    HMAC_Final(&ctx, digest, &digest_size);
     HMAC_CTX_cleanup(&ctx);
 
-    return digest;
+    int len = 2*digest_size + 1;
+    hex_digest = malloc(len);
+    hex_digest[len-1] = 0;
+
+    for (i = 0; i < digest_size; i++)
+        sprintf(hex_digest + 2*i, "%02x", digest[i]);
+
+    return hex_digest;
 }
