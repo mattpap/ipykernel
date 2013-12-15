@@ -3,8 +3,8 @@
 
 #include "msg.h"
 
-void recv(void* socket, Msg* msg);
-void send(void* socket, Msg* msg);
+void msg_recv(void* socket, Msg* msg);
+void msg_send(void* socket, Msg* msg);
 
 void send_status(ExecutionState state);
 void send_ok(Msg* msg, int execution_count);

@@ -7,7 +7,7 @@
 
 static const char* DELIMITER = "<IDS|MSG>";
 
-void recv(void* socket, Msg* msg) {
+void msg_recv(void* socket, Msg* msg) {
     char* ident;
 
     msg->num_idents = 0;
@@ -49,7 +49,7 @@ void recv(void* socket, Msg* msg) {
     free(signature);
 }
 
-void send(void* socket, Msg* msg) {
+void msg_send(void* socket, Msg* msg) {
     int i;
     char* header;
     char* parent_header;
@@ -97,7 +97,7 @@ void send_status(ExecutionState state) {
     msg.metadata = NULL;
     msg.content.status.execution_state = state;
 
-    send(sockets.publish, &msg);
+    msg_send(sockets.publish, &msg);
 
     free(msg.header.msg_id);
     free(msg.header.session);
