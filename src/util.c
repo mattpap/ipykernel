@@ -140,7 +140,9 @@ char* hmac(const char* s1, ...) {
     char* digest;
     char* s;
 
-    md = EVP_get_digestbyname(profile.signature_scheme);
+    OpenSSL_add_all_digests();
+
+    md = EVP_get_digestbyname(profile.signature_scheme); // TODO: strip hmac-
     if (md == NULL) {
         fprintf(stderr, "error: \"%s\" digest algorithm not supported\n", profile.signature_scheme);
         exit(1);
