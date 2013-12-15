@@ -24,7 +24,6 @@ void init_profile(Profile* profile, const char* existing) {
     FILE* file;
     char name[100];
     json_t* json;
-    json_t* value;
 
     if (existing == NULL) {
         sprintf(name, "profile-%d.json", getpid());
@@ -32,17 +31,16 @@ void init_profile(Profile* profile, const char* existing) {
 
         default_profile(profile);
 
-        json = json_pack(
-            "{s:s,s:s,s:i,s:i,s:i,s:i,s:i,s:s,s:s}",
-            "ip", profile->ip,
-            "transport", profile->transport,
-            "iopub_port", profile->iopub_port,
-            "shell_port", profile->shell_port,
-            "control_port", profile->control_port,
-            "stdin_port", profile->stdin_port,
-            "hb_port", profile->hb_port,
-            "key", profile->key,
-            "signature_scheme", profile->signature_scheme);
+        json = json_object();
+        json_object_set(json, "ip", json_string(profile->ip));
+        json_object_set(json, "transport", json_string(profile->transport));
+        json_object_set(json, "iopub_port", json_integer(profile->iopub_port));
+        json_object_set(json, "shell_port", json_integer(profile->shell_port));
+        json_object_set(json, "control_port", json_integer(profile->control_port));
+        json_object_set(json, "stdin_port", json_integer(profile->stdin_port));
+        json_object_set(json, "hb_port", json_integer(profile->hb_port));
+        json_object_set(json, "key", json_string(profile->key));
+        json_object_set(json, "signature_scheme", json_string(profile->signature_scheme));
 
         file = fopen(name, "w");
         json_dumpf(json, file, 0);
@@ -55,40 +53,18 @@ void init_profile(Profile* profile, const char* existing) {
 
         if (!json_is_object(json)) {
             fprintf(stderr, "error: expected a JSON object, got %s\n", json_strof(json));
-            json_decref(json);
             exit(1);
         }
 
-#define GET_STRING_KEY(json, value, key, dest)                                                       \
-        value = json_object_get(json, key);                                                          \
-        if (!json_is_string(value)) {                                                                \
-            fprintf(stderr, "error: \"%s\" key must be a string, got %s\n", key, json_strof(value)); \
-            json_decref(json);                                                                       \
-            exit(1);                                                                                 \
-        }                                                                                            \
-        dest = strdup(json_string_value(value));
-
-#define GET_INT_KEY(json, value, key, dest)                                                            \
-        value = json_object_get(json, key);                                                            \
-        if (!json_is_integer(value)) {                                                                 \
-            fprintf(stderr, "error: \"%s\" key must be an integer, got %s\n", key, json_strof(value)); \
-            json_decref(json);                                                                         \
-            exit(1);                                                                                   \
-        }                                                                                              \
-        dest = json_integer_value(value);
-
-        GET_STRING_KEY(json, value, "ip", profile->ip);
-        GET_STRING_KEY(json, value, "transport", profile->transport);
-        GET_INT_KEY(json, value, "iopub_port", profile->iopub_port);
-        GET_INT_KEY(json, value, "shell_port", profile->shell_port);
-        GET_INT_KEY(json, value, "control_port", profile->control_port);
-        GET_INT_KEY(json, value, "stdin_port", profile->stdin_port);
-        GET_INT_KEY(json, value, "hb_port", profile->hb_port);
-        GET_STRING_KEY(json, value, "key", profile->key);
-        GET_STRING_KEY(json, value, "signature_scheme", profile->signature_scheme);
-
-#undef GET_INT_KEY
-#undef GET_STRING_KEY
+        profile->ip = json_get_string_key(json, "ip");
+        profile->transport = json_get_string_key(json, "transport");
+        profile->iopub_port = json_get_integer_key(json, "iopub_port");
+        profile->shell_port = json_get_integer_key(json, "shell_port");
+        profile->control_port = json_get_integer_key(json, "control_port");
+        profile->stdin_port = json_get_integer_key(json, "stdin_port");
+        profile->hb_port = json_get_integer_key(json, "hb_port");
+        profile->key = json_get_string_key(json, "key");
+        profile->signature_scheme = json_get_string_key(json, "signature_scheme");
 
         json_decref(json);
     }
