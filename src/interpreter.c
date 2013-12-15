@@ -126,12 +126,12 @@ void _compGLoopFinish(FileName fn, EmitInfo finfo) {
 }
 
 void init_interpreter(int argc, char** argv) {
-    Bool echo;
+    /*Bool echo;*/
 
     osInit();
     osObtainLicense();
 
-    echo = cmdSubsumeResponseFiles(1, &argc, &argv);
+    /*echo =*/ cmdSubsumeResponseFiles(1, &argc, &argv);
 
     if (cmdHasRootOption(argc, argv))
         compRootDir = cmdOptionArg;
