@@ -7,6 +7,8 @@
 
 char* uuid4();
 const char* json_strof(const json_t* json);
+json_t* loads(const char* input);
+char* dumps(const json_t* json);
 char* json_get_string_key(const json_t* obj, const char* key);
 int json_get_integer_key(const json_t* obj, const char* key);
 bool json_get_bool_key(const json_t* obj, const char* key);

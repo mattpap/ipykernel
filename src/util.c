@@ -46,6 +46,28 @@ const char* json_strof(const json_t* json) {
     }
 }
 
+json_t* loads(const char* input) {
+    if (input == NULL || strlen(input) == 0)
+        return NULL;
+
+    json_error_t error;
+    json_t* json = json_loads(input, 0, &error);
+
+    if (json == NULL) {
+        fprintf(stderr, "error: unable to decode JSON: %s\n", error.text);
+        exit(1);
+    }
+
+    return json;
+}
+
+char* dumps(const json_t* json) {
+    if (json != NULL)
+        return json_dumps(json, JSON_COMPACT);
+    else
+        return strdup("");
+}
+
 char* json_get_string_key(const json_t* obj, const char* key) {
     json_t* value = json_object_get(obj, key);
     if (!json_is_string(value)) {
