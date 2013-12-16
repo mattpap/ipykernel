@@ -36,7 +36,7 @@ MsgType load_msg_type(const char* msg_type) {
     int i;
 
     for (i = 0; i < NUM_MSG_TYPE; i++) {
-        if (strcmp(msg_type, msg_types[i]))
+        if (strcmp(msg_type, msg_types[i]) == 0)
             return (MsgType)i;
     }
 
@@ -58,7 +58,7 @@ ExecutionStatus load_execution_status(const char* execution_status) {
     int i;
 
     for (i = 0; i < NUM_EXECUTION_STATUS; i++) {
-        if (strcmp(execution_status, execution_statuses[i]))
+        if (strcmp(execution_status, execution_statuses[i]) == 0)
             return (ExecutionStatus)i;
     }
 
@@ -80,7 +80,7 @@ HistAccessType load_hist_access_type(const char* hist_access_type) {
     int i;
 
     for (i = 0; i < NUM_HIST_ACCESS_TYPE; i++) {
-        if (strcmp(hist_access_type, hist_access_types[i]))
+        if (strcmp(hist_access_type, hist_access_types[i]) == 0)
             return (HistAccessType)i;
     }
 
@@ -102,7 +102,7 @@ ExecutionState load_execution_state(const char* execution_state) {
     int i;
 
     for (i = 0; i < NUM_EXECUTION_STATE; i++) {
-        if (strcmp(execution_state, execution_states[i]))
+        if (strcmp(execution_state, execution_states[i]) == 0)
             return (ExecutionState)i;
     }
 
@@ -172,14 +172,17 @@ static json_t* dump_execute_reply(const ExecuteReply* execute_reply) {
             json_object_set(json, "payload", json_array());
             json_object_set(json, "user_variables", json_null());
             json_object_set(json, "user_expressions", json_null());
+            break;
         case status_error:
             json_object_set(json, "status", json_string("error"));
             json_object_set(json, "ename", json_string(execute_reply->execute_reply_data.error_reply.ename));
             json_object_set(json, "evalue", json_string(execute_reply->execute_reply_data.error_reply.evalue));
             json_object_set(json, "traceback", json_string_array(execute_reply->execute_reply_data.error_reply.traceback,
                                                                  execute_reply->execute_reply_data.error_reply.num_traceback));
+            break;
         case status_abort:
             json_object_set(json, "status", json_string("abort"));
+            break;
     }
     return json;
 }
@@ -241,7 +244,7 @@ static json_t* dump_pyerr(const PyErr* pyerr) {
 
 static json_t* dump_status(const Status* status) {
     json_t* json = json_object();
-    json_object_set(json, "execution_state", json_string(dump_execution_status(status->execution_state)));
+    json_object_set(json, "execution_state", json_string(dump_execution_state(status->execution_state)));
     return json;
 }
 
@@ -281,14 +284,30 @@ json_t* dump_metadata(const void* metadata) {
 
 void load_content(const json_t* json, MsgType msg_type, Content* content) {
     switch (msg_type) {
-        case msg_execute_request:     load_execute_request(json, &content->execute_request);
-        case msg_complete_request:    load_complete_request(json, &content->complete_request);
-        case msg_kernel_info_request: load_kernel_info_request(json, &content->kernel_info_request);
-        case msg_object_info_request: load_object_info_request(json, &content->object_info_request);
-        case msg_connect_request:     load_connect_request(json, &content->connect_request);
-        case msg_shutdown_request:    load_shutdown_request(json, &content->shutdown_request);
-        case msg_history_request:     load_history_request(json, &content->history_request);
-        case msg_input_reply:         load_input_reply(json, &content->input_reply);
+        case msg_execute_request:
+            load_execute_request(json, &content->execute_request);
+            break;
+        case msg_complete_request:
+            load_complete_request(json, &content->complete_request);
+            break;
+        case msg_kernel_info_request:
+            load_kernel_info_request(json, &content->kernel_info_request);
+            break;
+        case msg_object_info_request:
+            load_object_info_request(json, &content->object_info_request);
+            break;
+        case msg_connect_request:
+            load_connect_request(json, &content->connect_request);
+            break;
+        case msg_shutdown_request:
+            load_shutdown_request(json, &content->shutdown_request);
+            break;
+        case msg_history_request:
+            load_history_request(json, &content->history_request);
+            break;
+        case msg_input_reply:
+            load_input_reply(json, &content->input_reply);
+            break;
         default:
             fprintf(stderr, "error: 1unexpected message type: \"%s\"\n", dump_msg_type(msg_type));
             exit(1);

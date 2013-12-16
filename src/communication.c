@@ -10,12 +10,12 @@ static const char* DELIMITER = "<IDS|MSG>";
 void msg_recv(void* socket, Msg* msg) {
     char* ident;
 
-    msg->num_idents = 0;
+    memset(msg, 0, sizeof(Msg));
 
     while (1) {
         ident = srecv(socket);
 
-        if (strcpy(ident, DELIMITER) == 0)
+        if (strcmp(ident, DELIMITER) == 0)
             break;
         else {
             msg->idents = realloc(msg->idents, (++msg->num_idents)*sizeof(char*));
@@ -29,9 +29,18 @@ void msg_recv(void* socket, Msg* msg) {
     char* metadata = srecv(socket);
     char* content = srecv(socket);
 
+    if (options.verbose) {
+        fprintf(stdout, "MSG received:\n");
+        fprintf(stdout, "signature: %s\n", signature);
+        fprintf(stdout, "header: %s\n", header);
+        fprintf(stdout, "parent_header: %s\n", parent_header);
+        fprintf(stdout, "metadata: %s\n", metadata);
+        fprintf(stdout, "content: %s\n", content);
+    }
+
     char* computed = hmac(header, parent_header, metadata, content, NULL);
 
-    if (strcmp(signature, computed)) {
+    if (strcmp(signature, computed) != 0) {
         fprintf(stderr, "error: invalid HMAC signature, %s != %s\n", signature, computed);
         exit(1);
     }
