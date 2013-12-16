@@ -107,15 +107,17 @@ json_t* json_string_array(char** array, int count) {
 
 char* srecv(void* socket) {
     zmq_msg_t message;
-    char* string;
-    int size;
 
     zmq_msg_init(&message);
-    if (zmq_msg_recv(&message, socket, 0))
-        return NULL;
+    int rc = zmq_msg_recv(&message, socket, 0);
 
-    size = zmq_msg_size(&message);
-    string = malloc(size+1);
+    if (rc == -1) {
+        fprintf(stderr, "error: failed to receive from ZMQ socket (errno=%d)\n", errno);
+        exit(1);
+    }
+
+    int size = zmq_msg_size(&message);
+    char* string = malloc(size+1);
     memcpy(string, zmq_msg_data(&message), size);
     string[size] = 0;
 
@@ -128,7 +130,14 @@ int ssend(void* socket, const char* string, bool more) {
     int size = strlen(string);
     zmq_msg_init_size(&message, size);
     memcpy(zmq_msg_data(&message), string, size);
-    int rc = zmq_msg_send(socket, &message, more ? ZMQ_SNDMORE : 0);
+
+    int rc = zmq_msg_send(&message, socket, more ? ZMQ_SNDMORE : 0);
+
+    if (rc == -1) {
+        fprintf(stderr, "error: failed to send to ZMQ socket (errno=%d)\n", errno);
+        exit(1);
+    }
+
     zmq_msg_close(&message);
     return rc;
 }
