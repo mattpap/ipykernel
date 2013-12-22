@@ -505,8 +505,10 @@ typedef union Content {
 } Content;
 
 typedef struct Msg {
-    char** idents;
-    int num_idents;
+    struct {
+        char** list;
+        int size;
+    } idents;
     Header header;
     Header* parent_header;
     void* metadata;

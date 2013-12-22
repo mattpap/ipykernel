@@ -18,8 +18,8 @@ void msg_recv(void* socket, Msg* msg) {
         if (strcmp(ident, DELIMITER) == 0)
             break;
         else {
-            msg->idents = realloc(msg->idents, (++msg->num_idents)*sizeof(char*));
-            msg->idents[msg->num_idents-1] = ident;
+            msg->idents.list = realloc(msg->idents.list, (++msg->idents.size)*sizeof(char*));
+            msg->idents.list[msg->idents.size-1] = ident;
         }
     }
 
@@ -58,7 +58,7 @@ void msg_recv(void* socket, Msg* msg) {
     free(signature);
 }
 
-void msg_send(void* socket, Msg* msg) {
+void msg_send(void* socket, const Msg* msg) {
     int i;
     char* header;
     char* parent_header;
@@ -73,8 +73,8 @@ void msg_send(void* socket, Msg* msg) {
 
     signature = hmac(header, parent_header, metadata, content, NULL);
 
-    for (i = 0; i < msg->num_idents; i++)
-        ssend(socket, msg->idents[i], true);
+    for (i = 0; i < msg->idents.size; i++)
+        ssend(socket, msg->idents.list[i], true);
 
     ssend(socket, DELIMITER, true);
     ssend(socket, signature, true);
@@ -90,21 +90,26 @@ void msg_send(void* socket, Msg* msg) {
     free(header);
 }
 
-static char* status_idents[] = { "status" };
-static char* status_username = "aldor_kernel";
+static const char* status_idents[] = { "status" };
+static const char* status_username = "aldor_kernel";
 
 void send_status(ExecutionState state) {
-    Msg msg;
-
-    msg.idents = status_idents;
-    msg.num_idents = 1;
-    msg.header.msg_id = uuid4();
-    msg.header.username = status_username;
-    msg.header.session = uuid4();
-    msg.header.msg_type = msg_status;
-    msg.parent_header = NULL;
-    msg.metadata = NULL;
-    msg.content.status.execution_state = state;
+    Msg msg = {
+        .idents = { .list = (char**)status_idents, .size = 1 },
+        .header = {
+            .msg_id = uuid4(),
+            .username = (char*)status_username,
+            .session = uuid4(),
+            .msg_type = msg_status,
+        },
+        .parent_header = NULL,
+        .metadata = NULL,
+        .content = {
+            .status = {
+                .execution_state = state,
+            },
+        },
+    };
 
     msg_send(sockets.publish, &msg);
 
