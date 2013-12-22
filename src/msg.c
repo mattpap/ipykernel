@@ -114,6 +114,44 @@ const char* dump_execution_state(ExecutionState execution_state) {
     return execution_states[(int)execution_state];
 }
 
+static void load_dict(const json_t* json, Dict* dict) {
+    if (!json_is_object(json)) {
+        fprintf(stderr, "error: expected a JSON object, got %s\n", json_strof(json));
+        exit(1);
+    }
+
+    dict->size = json_object_size(json);
+
+    if (dict->size != 0) {
+        dict->list = malloc(dict->size*sizeof(char*));
+
+        size_t i = 0;
+        const char* key;
+        json_t* value;
+        KeyValue* kv;
+
+        json_object_foreach((json_t*)json, key, value) {
+            if (!json_is_string(value)) {
+                fprintf(stderr, "error: expected value of type string for \"%s\" key, got %s\n", key, json_strof(json));
+                exit(1);
+            }
+
+            kv = &dict->list[i++];
+
+            kv->key = strdup(key);
+            kv->value = strdup(json_string_value(value));
+        }
+    }
+}
+
+static json_t* dump_dict(const Dict* dict) {
+    size_t i;
+    json_t* obj = json_object();
+    for (i = 0; i < dict->size; i++)
+        json_object_set(obj, dict->list[i].key, json_string(dict->list[i].value));
+    return obj;
+}
+
 static void load_execute_request(const json_t* json, ExecuteRequest* execute_request) {
     execute_request->code = json_get_string_key(json, "code");
     execute_request->silent = json_get_bool_key(json, "silent");
@@ -161,14 +199,6 @@ static void load_shutdown_request(const json_t* json, ShutdownRequest* shutdown_
 
 static void load_input_reply(const json_t* json, InputReply* input_reply) {
     input_reply->value = json_get_string_key(json, "value");
-}
-
-static json_t* dump_dict(const Dict* dict) {
-    size_t i;
-    json_t* obj = json_object();
-    for (i = 0; i < dict->size; i++)
-        json_object_set(obj, dict->list[i].key, json_string(dict->list[i].value));
-    return obj;
 }
 
 static json_t* dump_execute_reply(const ExecuteReply* execute_reply) {
@@ -377,12 +407,12 @@ json_t* dump_header(const Header* header) {
     return json;
 }
 
-void load_metadata(const json_t* json, void** metadata) {
-    metadata = NULL;
+void load_metadata(const json_t* json, Dict* metadata) {
+    load_dict(json, metadata);
 }
 
-json_t* dump_metadata(const void* metadata) {
-    return NULL;
+json_t* dump_metadata(const Dict* metadata) {
+    return dump_dict(metadata);
 }
 
 void load_content(const json_t* json, MsgType msg_type, Content* content) {

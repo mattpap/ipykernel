@@ -100,7 +100,7 @@ void send_reply(void* socket, const Msg* msg, MsgType msg_type, const Content* c
             .msg_type = msg_type,
         },
         .parent_header = (Header*)&msg->header,
-        .metadata = NULL,
+        .metadata = { .list = NULL, .size = 0 },
         .content = *content,
     };
     msg_send(socket, &reply);
@@ -119,7 +119,7 @@ void send_status(ExecutionState state) {
             .msg_type = msg_status,
         },
         .parent_header = NULL,
-        .metadata = NULL,
+        .metadata = { .list = NULL, .size = 0 },
         .content = {
             .status = {
                 .execution_state = state,

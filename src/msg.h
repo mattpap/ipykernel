@@ -537,7 +537,7 @@ typedef struct Msg {
     } idents;
     Header header;
     Header* parent_header;
-    void* metadata; // TODO: Metadata
+    Dict metadata;
     Content content;
 } Msg;
 
@@ -546,8 +546,8 @@ typedef struct Msg {
 void load_header(const json_t* json, Header* header);
 json_t* dump_header(const Header* header);
 
-void load_metadata(const json_t* json, void** metadata);
-json_t* dump_metadata(const void* metadata);
+void load_metadata(const json_t* json, Dict* metadata);
+json_t* dump_metadata(const Dict* metadata);
 
 void load_content(const json_t* json, MsgType msg_type, Content* content);
 json_t* dump_content(MsgType msg_type, const Content* content);
