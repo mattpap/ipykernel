@@ -156,8 +156,9 @@ static void load_execute_request(const json_t* json, ExecuteRequest* execute_req
     execute_request->code = json_get_string_key(json, "code");
     execute_request->silent = json_get_bool_key(json, "silent");
     execute_request->store_history = json_get_bool_key(json, "store_history");
-    execute_request->user_variables = NULL;
-    execute_request->user_expressions = NULL;
+    execute_request->user_variables.list = NULL; // TODO
+    execute_request->user_variables.size = 0;
+    load_dict(json_object_get(json, "user_expressions"), &execute_request->user_expressions);
     execute_request->allow_stdin = json_get_bool_key(json, "allow_stdin");
 }
 
@@ -208,9 +209,9 @@ static json_t* dump_execute_reply(const ExecuteReply* execute_reply) {
     json_object_set(json, "status", json_string(dump_execution_status(execute_reply->status)));
     switch (execute_reply->status) {
         case status_ok:
-            json_object_set(json, "payload", json_array());
-            json_object_set(json, "user_variables", json_null());
-            json_object_set(json, "user_expressions", json_null());
+            json_object_set(json, "payload", dump_dict(&execute_reply->ok_reply.payload));
+            json_object_set(json, "user_variables", json_array()); // TODO
+            json_object_set(json, "user_expressions", dump_dict(&execute_reply->ok_reply.user_expressions));
             break;
         case status_error:
             json_object_set(json, "ename", json_string(execute_reply->error_reply.ename));

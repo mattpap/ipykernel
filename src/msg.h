@@ -59,11 +59,14 @@ typedef struct ExecuteRequest {
     // A list of variable names from the user's namespace to be retrieved.
     // What returns is a rich representation of each variable (dict keyed by name).
     // See the display_data content for the structure of the representation data.
-    char** user_variables;
+    struct {
+        char** list;
+        size_t size;
+    } user_variables;
 
     // Similarly, a dict mapping names to expressions to be evaluated in the
     // user's dict.
-    void* user_expressions;
+    Dict user_expressions;
 
     // Some frontends (e.g. the Notebook) do not support stdin requests. If
     // raw_input is called from code executed from such a frontend, a
@@ -77,11 +80,14 @@ typedef struct ExecuteOkReply {
     // produced by the code being executed.  It is retrieved by the kernel at
     // the end of the execution and sent back to the front end, which can take
     // action on it as needed.  See main text for further details.
-    void* payload;
+    Dict payload;
 
     // Results for the user_variables and user_expressions.
-    char** user_variables;
-    void* user_expressions;
+    struct {
+        char** list;
+        size_t size;
+    } user_variables;
+    Dict user_expressions;
 } ExecuteOkReply;
 
 typedef struct ExecuteErrorReply {
