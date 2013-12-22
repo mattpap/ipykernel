@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <zmq.h>
@@ -13,7 +14,7 @@ char* endpoint(int port) {
 }
 
 void init_sockets(Sockets* sockets) {
-    sockets->ctx = zmq_ctx_new();
+    sockets->ctx = zmq_init(1);
 
     sockets->publish = zmq_socket(sockets->ctx, ZMQ_PUB);
     sockets->requests = zmq_socket(sockets->ctx, ZMQ_ROUTER);

@@ -6,7 +6,7 @@
 #include "globals.h"
 
 void* heartbeat(void* data) {
-    zmq_proxy(sockets.heartbeat, sockets.heartbeat, NULL);
+    zmq_device(ZMQ_STREAMER, sockets.heartbeat, sockets.heartbeat);
     pthread_exit(NULL);
     return NULL;
 }

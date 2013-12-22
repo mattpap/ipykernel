@@ -6,7 +6,7 @@
 
 * [IPython](http://ipython.org/ipython-doc/stable/install/install.html) 1.0+
 * [Aldor](https://github.com/pippijn/aldor) master
-* [ZeroMQ](http://zeromq.org) 3.0+
+* [ZeroMQ](http://zeromq.org) 2.x
 * [Jansson](http://www.digip.org/jansson/) 2.5+
 
 ## Building
