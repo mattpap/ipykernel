@@ -243,7 +243,10 @@ typedef struct CompleteRequest {
 typedef struct CompleteReply {
     // The list of all matches to the completion request, such as
     // ['a.isalnum', 'a.isalpha'] for the above example.
-    char** matches;
+    struct {
+        char** list;
+        size_t size;
+    } matches;
 
     // the substring of the matched text
     // this is typically the common prefix of the matches,
@@ -300,7 +303,10 @@ typedef struct HistoryReply {
     // (session, line_number, input) or
     // (session, line_number, (input, output)),
     // depending on whether output was False or True, respectively.
-    HistoryItem* history;
+    struct {
+        HistoryItem* list;
+        size_t size;
+    } history;
 } HistoryReply;
 
 typedef struct ConnectRequest {
@@ -332,6 +338,11 @@ typedef struct IPythonVersion {
     char* build;
 } IPythonVersion;
 
+typedef struct LanguageVersion {
+    int major;
+    int minor;
+} LanguageVersion;
+
 typedef struct KernelInfoReply {
     // Version of messaging protocol (mandatory).
     // The first integer indicates major version.  It is incremented when
@@ -345,12 +356,12 @@ typedef struct KernelInfoReply {
     // The last component is an extra field, which may be 'dev' or
     // 'rc1' in development version.  It is an empty string for
     // released version.
-    IPythonVersion ipython_version;
+    IPythonVersion* ipython_version;
 
     // Language version number (mandatory).
     // It is Python version number (e.g., [2, 7, 3]) for the kernel
     // included in IPython.
-    int* language_version;
+    LanguageVersion language_version;
 
     // Programming language in which kernel is implemented (mandatory).
     // Kernel included in IPython returns 'python'.
@@ -525,5 +536,7 @@ json_t* dump_metadata(const void* metadata);
 
 void load_content(const json_t* json, MsgType msg_type, Content* content);
 json_t* dump_content(MsgType msg_type, const Content* content);
+
+const char* dump_msg_type(MsgType msg_type);
 
 #endif // __IALDOR_MSG_H__

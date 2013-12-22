@@ -25,6 +25,7 @@ add_executable(ialdor src/ialdor.c
                       src/eventloop.c
                       src/communication.c
                       src/interpreter.c
+                      src/handlers.c
                       src/msg.c
                       src/util.c
                       src/concat.c

@@ -6,6 +6,8 @@
 void msg_recv(void* socket, Msg* msg);
 void msg_send(void* socket, Msg* msg);
 
+void send_reply(void* socket, const Msg* in, MsgType msg_type, const Content* content);
+
 void send_status(ExecutionState state);
 void send_ok(Msg* msg, int execution_count);
 void send_error(Msg* msg, int execution_count, char* error);

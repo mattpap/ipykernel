@@ -14,7 +14,6 @@ int main(int argc, char** argv) {
     init_options(&argc, &argv, &options);
     init_profile(&profile, options.profile);
     init_sockets(&sockets);
-
     init_heartbeat();
 
     send_status(state_starting);

@@ -1,20 +1,43 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include <zmq.h>
+
+#include "communication.h"
+#include "handlers.h"
+#include "msg.h"
 
 void* eventloop(void* socket) {
-    zmq_msg_t message;
+    Msg msg;
 
     while (1) {
-        zmq_msg_init(&message);
-        zmq_msg_recv(&message, socket, 0);
-        //  TODO
-        printf("got message");
-        zmq_msg_close(&message);
+        msg_recv(socket, &msg);
 
-        if (!zmq_msg_more(&message))
-            break;
+        switch (msg.header.msg_type) {
+            case msg_execute_request:
+                execute_handler(socket, &msg);
+                break;
+            case msg_complete_request:
+                complete_handler(socket, &msg);
+                break;
+            case msg_kernel_info_request:
+                kernel_info_handler(socket, &msg);
+                break;
+            case msg_connect_request:
+                connect_handler(socket, &msg);
+                break;
+            case msg_shutdown_request:
+                shutdown_handler(socket, &msg);
+                break;
+            case msg_object_info_request:
+                object_info_handler(socket, &msg);
+                break;
+            case msg_history_request:
+                history_handler(socket, &msg);
+                break;
+            default:
+                fprintf(stderr, "error: unsupported message type: %s", dump_msg_type(msg.header.msg_type));
+                exit(1);
+        }
     }
 
     pthread_exit(NULL);

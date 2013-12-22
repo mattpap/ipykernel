@@ -90,6 +90,22 @@ void msg_send(void* socket, const Msg* msg) {
     free(header);
 }
 
+void send_reply(void* socket, const Msg* msg, MsgType msg_type, const Content* content) {
+    Msg reply = {
+        .idents = { .list = msg->idents.list, .size = msg->idents.size },
+        .header = {
+            .msg_id = uuid4(),
+            .username = msg->header.username,
+            .session = msg->header.session,
+            .msg_type = msg_type,
+        },
+        .parent_header = (Header*)&msg->header,
+        .metadata = NULL,
+        .content = *content,
+    };
+    msg_send(socket, &reply);
+}
+
 static const char* status_idents[] = { "status" };
 static const char* status_username = "aldor_kernel";
 
