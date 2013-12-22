@@ -46,7 +46,7 @@ void msg_recv(void* socket, Msg* msg) {
     }
 
     load_header(loads(header), &msg->header);
-    //load_parent_header(parent_header, &msg->parent_header);
+    load_optional_header(loads(parent_header), &msg->parent_header);
     load_metadata(loads(metadata), &msg->metadata);
     load_content(loads(content), msg->header.msg_type, &msg->content);
 

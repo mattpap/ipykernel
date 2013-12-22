@@ -550,6 +550,7 @@ typedef struct Msg {
 #include <jansson.h>
 
 void load_header(const json_t* json, Header* header);
+void load_optional_header(const json_t* json, Header** header);
 json_t* dump_header(const Header* header);
 
 void load_metadata(const json_t* json, Dict* metadata);

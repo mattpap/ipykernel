@@ -394,6 +394,13 @@ void load_header(const json_t* json, Header* header) {
     header->msg_type = load_msg_type(json_get_string_key(json, "msg_type"));
 }
 
+void load_optional_header(const json_t* json, Header** header) {
+    if (json_object_size(json) == 0)
+        *header = NULL;
+    else
+        load_header(json, *header);
+}
+
 json_t* dump_header(const Header* header) {
     json_t* json = json_object();
 
