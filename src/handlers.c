@@ -5,11 +5,12 @@
 #include "msg.h"
 #include "communication.h"
 
+static int execution_count = 0;
+
 void execute_handler(void* socket, Msg* msg) {
-    int n = 0;
     send_status(state_busy);
-    printf("%s\n", msg->content.execute_request.code);
-    send_ok(msg, n);
+    execution_count++;
+    send_ok(msg, execution_count);
     send_status(state_idle);
 }
 
