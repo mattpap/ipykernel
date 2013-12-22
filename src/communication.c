@@ -106,6 +106,29 @@ void send_reply(void* socket, const Msg* msg, MsgType msg_type, const Content* c
     msg_send(socket, &reply);
 }
 
+void publish_reply(Msg* msg, MsgType msg_type, const Content* content) {
+    char** idents = malloc(1*sizeof(char*));
+
+    if (msg_type == msg_stream)
+        idents[0] = strdup(content->stream.name);
+    else
+        idents[0] = strdup(dump_msg_type(msg_type));
+
+    Msg reply = {
+        .idents = { .list = idents, .size = 1 },
+        .header = {
+            .msg_id = uuid4(),
+            .username = msg->header.username,
+            .session = msg->header.session,
+            .msg_type = msg_type,
+        },
+        .parent_header = (Header*)&msg->header,
+        .metadata = { .list = NULL, .size = 0 },
+        .content = *content,
+    };
+    msg_send(sockets.publish, &reply);
+}
+
 static const char* status_idents[] = { "status" };
 static const char* status_username = "aldor_kernel";
 
@@ -134,17 +157,74 @@ void send_status(ExecutionState state) {
 }
 
 void send_ok(Msg* msg, int execution_count) {
-    // TODO
+    ExecuteReply execute_reply = {
+        .status = status_ok,
+        .execution_count = execution_count,
+        .ok_reply = {
+            .payload = { .list = NULL, .size = 0 },
+            .user_variables = {
+                .list = msg->content.execute_request.user_variables.list,
+                .size = msg->content.execute_request.user_variables.size,
+            },
+            .user_expressions = {
+                .list = msg->content.execute_request.user_expressions.list,
+                .size = msg->content.execute_request.user_expressions.size,
+            },
+        },
+    };
+    Content content = { .execute_reply = execute_reply };
+    send_reply(sockets.requests, msg, msg_execute_reply, &content);
 }
 
 void send_error(Msg* msg, int execution_count, char* error) {
-    // TODO
+    char* ename = "";
+    char* evalue = error;
+
+    PyErr pyerr = {
+        .execution_count = execution_count,
+        .ename = ename,
+        .evalue = evalue,
+        .traceback = { .list = NULL, .size = 0 },
+    };
+    Content pyerr_content = { .pyerr = pyerr };
+    publish_reply(msg, msg_pyerr, &pyerr_content);
+
+    ExecuteReply execute_reply = {
+        .status = status_error,
+        .execution_count = execution_count,
+        .error_reply = {
+            .ename = ename,
+            .evalue = evalue,
+            .traceback = { .list = NULL, .size = 0 },
+        },
+    };
+    Content content = { .execute_reply = execute_reply };
+    send_reply(sockets.requests, msg, msg_execute_reply, &content);
 }
 
 void send_abort(Msg* msg, int execution_count) {
-    // TODO
+    ExecuteReply execute_reply = {
+        .status = status_abort,
+        .execution_count = execution_count,
+        .abort_reply = {},
+    };
+    Content content = { .execute_reply = execute_reply };
+    send_reply(sockets.requests, msg, msg_execute_reply, &content);
 }
 
 void send_stream(Msg* msg, char* name, char* data) {
-    // TODO
+    Stream stream = {
+        .name = name,
+        .data = data,
+    };
+    Content content = { .stream = stream };
+    publish_reply(msg, msg_stream, &content);
+}
+
+void send_stdin(Msg* msg, char* prompt) {
+    InputRequest input_request = {
+        .prompt = prompt,
+    };
+    Content content = { .input_request = input_request };
+    send_reply(sockets.stdin, msg, msg_input_request, &content);
 }
