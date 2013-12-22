@@ -8,6 +8,7 @@
 void execute_handler(void* socket, Msg* msg) {
     int n = 0;
     send_status(state_busy);
+    printf("%s\n", msg->content.execute_request.code);
     send_ok(msg, n);
     send_status(state_starting);
 }

@@ -12,7 +12,6 @@ char* dumps(const json_t* json);
 char* json_get_string_key(const json_t* obj, const char* key);
 int json_get_integer_key(const json_t* obj, const char* key);
 bool json_get_bool_key(const json_t* obj, const char* key);
-json_t* json_string_array(char** array, int count);
 char* srecv(void* socket);
 int ssend(void* socket, const char* string, bool more);
 char* hmac(const char* s1, ...);

@@ -163,82 +163,184 @@ static void load_input_reply(const json_t* json, InputReply* input_reply) {
     input_reply->value = json_get_string_key(json, "value");
 }
 
+static json_t* dump_dict(const Dict* dict) {
+    size_t i;
+    json_t* obj = json_object();
+    for (i = 0; i < dict->size; i++)
+        json_object_set(obj, dict->list[i].key, json_string(dict->list[i].value));
+    return obj;
+}
+
 static json_t* dump_execute_reply(const ExecuteReply* execute_reply) {
+    size_t i;
     json_t* json = json_object();
     json_object_set(json, "execution_count", json_integer(execute_reply->execution_count));
+    json_object_set(json, "status", json_string(dump_execution_status(execute_reply->status)));
     switch (execute_reply->status) {
         case status_ok:
-            json_object_set(json, "status", json_string("ok"));
             json_object_set(json, "payload", json_array());
             json_object_set(json, "user_variables", json_null());
             json_object_set(json, "user_expressions", json_null());
             break;
         case status_error:
-            json_object_set(json, "status", json_string("error"));
-            json_object_set(json, "ename", json_string(execute_reply->execute_reply_data.error_reply.ename));
-            json_object_set(json, "evalue", json_string(execute_reply->execute_reply_data.error_reply.evalue));
-            json_object_set(json, "traceback", json_string_array(execute_reply->execute_reply_data.error_reply.traceback,
-                                                                 execute_reply->execute_reply_data.error_reply.num_traceback));
+            json_object_set(json, "ename", json_string(execute_reply->error_reply.ename));
+            json_object_set(json, "evalue", json_string(execute_reply->error_reply.evalue));
+            json_t* traceback = json_array();
+            for (i = 0; i < execute_reply->error_reply.traceback.size; i++)
+                json_array_append_new(traceback, json_string(execute_reply->error_reply.traceback.list[i]));
+            json_object_set(json, "traceback", traceback);
             break;
         case status_abort:
-            json_object_set(json, "status", json_string("abort"));
             break;
     }
     return json;
 }
 
-static json_t* dump_object_info_reply(const ObjectInfoReply* object_info_reply) {
+static json_t* dump_complete_reply(const CompleteReply* complete_reply) {
+    size_t i;
     json_t* json = json_object();
+    json_t* matches = json_array();
+
+    for (i = 0; i < complete_reply->matches.size; i++)
+        json_array_append_new(matches, json_string(complete_reply->matches.list[i]));
+
+    json_object_set(json, "matches", matches);
+    json_object_set(json, "matched_text", json_string(complete_reply->matched_text));
+    json_object_set(json, "status", json_string(dump_execution_status(complete_reply->status)));
     return json;
 }
 
-static json_t* dump_complete_reply(const CompleteReply* complete_reply) {
+static json_t* dump_object_info_reply(const ObjectInfoReply* object_info_reply) {
     json_t* json = json_object();
+    json_object_set(json, "name", json_string(object_info_reply->name));
+    json_object_set(json, "found", json_boolean(object_info_reply->found));
+    if (object_info_reply->found) {
+        json_object_set(json, "ismagic", json_boolean(object_info_reply->found_reply.ismagic));
+        json_object_set(json, "isalias", json_boolean(object_info_reply->found_reply.isalias));
+        json_object_set(json, "namespace", json_string(object_info_reply->found_reply.namespace));
+        json_object_set(json, "type_name", json_string(object_info_reply->found_reply.type_name));
+        json_object_set(json, "string_form", json_string(object_info_reply->found_reply.string_form));
+        json_object_set(json, "base_class", json_string(object_info_reply->found_reply.base_class));
+        json_object_set(json, "length", json_string(object_info_reply->found_reply.length));
+        json_object_set(json, "file", json_string(object_info_reply->found_reply.file));
+        json_object_set(json, "definition", json_string(object_info_reply->found_reply.definition));
+        // TODO: ArgSpec argspec
+        json_object_set(json, "init_definition", json_string(object_info_reply->found_reply.init_definition));
+        json_object_set(json, "docstring", json_string(object_info_reply->found_reply.docstring));
+        json_object_set(json, "init_docstring", json_string(object_info_reply->found_reply.init_docstring));
+        json_object_set(json, "class_docstring", json_string(object_info_reply->found_reply.class_docstring));
+        json_object_set(json, "call_def", json_string(object_info_reply->found_reply.call_def));
+        json_object_set(json, "call_docstring", json_string(object_info_reply->found_reply.call_docstring));
+        json_object_set(json, "source", json_string(object_info_reply->found_reply.source));
+    }
     return json;
 }
 
 static json_t* dump_history_reply(const HistoryReply* history_reply) {
+    size_t i;
     json_t* json = json_object();
+    json_t* history = json_array();
+    json_t* item;
+    HistoryItem history_item;
+
+    for (i = 0; i < history_reply->history.size; i++) {
+        history_item = history_reply->history.list[i];
+        item = json_object();
+        json_object_set(item, "session", json_integer(history_item.session));
+        json_object_set(item, "line_number", json_integer(history_item.line_number));
+        json_object_set(item, "input", json_string(history_item.input));
+        json_object_set(item, "output", json_string(history_item.output));
+        json_array_append_new(history, item);
+    }
+
+    json_object_set(json, "history", history);
     return json;
 }
 
 static json_t* dump_connect_reply(const ConnectReply* connect_reply) {
     json_t* json = json_object();
+    json_object_set(json, "shell_port", json_integer(connect_reply->shell_port));
+    json_object_set(json, "iopub_port", json_integer(connect_reply->iopub_port));
+    json_object_set(json, "stdin_port", json_integer(connect_reply->stdin_port));
+    json_object_set(json, "hb_port", json_integer(connect_reply->hb_port));
     return json;
 }
 
 static json_t* dump_kernel_info_reply(const KernelInfoReply* kernel_info_reply) {
     json_t* json = json_object();
+
+    json_t* protocol_version = json_array();
+    json_array_append_new(protocol_version, json_integer(kernel_info_reply->protocol_version.major));
+    json_array_append_new(protocol_version, json_integer(kernel_info_reply->protocol_version.minor));
+
+    json_t* ipython_version;
+    if (kernel_info_reply->ipython_version != NULL) {
+        ipython_version = json_array();
+        json_array_append_new(ipython_version, json_integer(kernel_info_reply->ipython_version->major));
+        json_array_append_new(ipython_version, json_integer(kernel_info_reply->ipython_version->minor));
+        json_array_append_new(ipython_version, json_integer(kernel_info_reply->ipython_version->maintenance));
+        json_array_append_new(ipython_version, json_string(kernel_info_reply->ipython_version->build));
+    } else {
+        ipython_version = json_null();
+    }
+
+    json_t* language_version = json_array();
+    json_array_append_new(language_version, json_integer(kernel_info_reply->language_version.major));
+    json_array_append_new(language_version, json_integer(kernel_info_reply->language_version.minor));
+
+    json_object_set(json, "protocol_version", protocol_version);
+    json_object_set(json, "ipython_version", ipython_version);
+    json_object_set(json, "language_version", language_version);
+    json_object_set(json, "language", json_string(kernel_info_reply->language));
     return json;
 }
 
 static json_t* dump_shutdown_reply(const ShutdownReply* shutdown_reply) {
     json_t* json = json_object();
+    json_object_set(json, "restart", json_boolean(shutdown_reply->restart));
     return json;
 }
 
 static json_t* dump_stream(const Stream* stream) {
     json_t* json = json_object();
+    json_object_set(json, "name", json_string(stream->name));
+    json_object_set(json, "data", json_string(stream->data));
     return json;
 }
 
 static json_t* dump_display_data(const DisplayData* display_data) {
     json_t* json = json_object();
+    json_object_set(json, "source", json_string(display_data->source));
+    json_object_set(json, "data", dump_dict(&display_data->data));
+    json_object_set(json, "metadata", dump_dict(&display_data->metadata));
     return json;
 }
 
 static json_t* dump_pyin(const PyIn* pyin) {
     json_t* json = json_object();
+    json_object_set(json, "code", json_string(pyin->code));
+    json_object_set(json, "execution_count", json_integer(pyin->execution_count));
     return json;
 }
 
 static json_t* dump_pyout(const PyOut* pyout) {
     json_t* json = json_object();
+    json_object_set(json, "execution_count", json_integer(pyout->execution_count));
+    json_object_set(json, "data", dump_dict(&pyout->data));
+    json_object_set(json, "metadata", dump_dict(&pyout->metadata));
     return json;
 }
 
 static json_t* dump_pyerr(const PyErr* pyerr) {
+    size_t i;
     json_t* json = json_object();
+    json_object_set(json, "execution_count", json_integer(pyerr->execution_count));
+    json_object_set(json, "ename", json_string(pyerr->ename));
+    json_object_set(json, "evalue", json_string(pyerr->evalue));
+    json_t* traceback = json_array();
+    for (i = 0; i < pyerr->traceback.size; i++)
+        json_array_append_new(traceback, json_string(pyerr->traceback.list[i]));
+    json_object_set(json, "traceback", traceback);
     return json;
 }
 
@@ -250,6 +352,7 @@ static json_t* dump_status(const Status* status) {
 
 static json_t* dump_input_request(const InputRequest* input_request) {
     json_t* json = json_object();
+    json_object_set(json, "prompt", json_string(input_request->prompt));
     return json;
 }
 
@@ -309,7 +412,7 @@ void load_content(const json_t* json, MsgType msg_type, Content* content) {
             load_input_reply(json, &content->input_reply);
             break;
         default:
-            fprintf(stderr, "error: 1unexpected message type: \"%s\"\n", dump_msg_type(msg_type));
+            fprintf(stderr, "error: unexpected message type: \"%s\"\n", dump_msg_type(msg_type));
             exit(1);
     }
 }
@@ -331,7 +434,7 @@ json_t* dump_content(MsgType msg_type, const Content* content) {
         case msg_pyerr:             return dump_pyerr(&content->pyerr);
         case msg_status:            return dump_status(&content->status);
         default:
-            fprintf(stderr, "error: 2unexpected message type: \"%s\"\n", dump_msg_type(msg_type));
+            fprintf(stderr, "error: unexpected message type: \"%s\"\n", dump_msg_type(msg_type));
             exit(1);
     }
 }

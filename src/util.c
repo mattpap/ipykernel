@@ -95,16 +95,6 @@ bool json_get_bool_key(const json_t* obj, const char* key) {
     return json_is_true(value);
 }
 
-json_t* json_string_array(char** array, int count) {
-    json_t* json = json_array();
-    int i;
-
-    for (i = 0; i < count; i++)
-        json_array_append(json, json_string(array[i]));
-
-    return json;
-}
-
 char* srecv(void* socket) {
     zmq_msg_t message;
 

@@ -4,6 +4,16 @@
 #include <stdbool.h>
 #include <uuid/uuid.h>
 
+typedef struct KeyValue {
+    char* key;
+    char* value;
+} KeyValue;
+
+typedef struct Dict {
+    KeyValue* list;
+    size_t size;
+} Dict;
+
 typedef enum ExecutionStatus {
     status_ok = 0,
     status_error,
@@ -88,8 +98,10 @@ typedef struct ExecuteErrorReply {
     // how much of it to unpack.  But for now, let's start with a simple list
     // of strings, since that requires only minimal changes to ultratb as
     // written.
-    char** traceback;
-    int num_traceback;
+    struct {
+        char** list;
+        size_t size;
+    } traceback;
 } ExecuteErrorReply;
 
 typedef struct ExecuteAbortReply {
@@ -109,7 +121,7 @@ typedef struct ExecuteReply {
         ExecuteOkReply ok_reply;
         ExecuteErrorReply error_reply;
         ExecuteAbortReply abort_reply;
-    } execute_reply_data;
+    };
 } ExecuteReply;
 
 typedef struct ObjectInfoRequest {
@@ -215,7 +227,7 @@ typedef struct ObjectInfoReply {
     union {
         ObjectInfoNotFoundReply notfound_reply;
         ObjectInfoFoundReply found_reply;
-    } object_info_reply_data;
+    };
 } ObjectInfoReply;
 
 typedef struct CompleteRequest {
@@ -393,10 +405,10 @@ typedef struct DisplayData {
     // The data dict contains key/value pairs, where the kids are MIME
     // types and the values are the raw data of the representation in that
     // format.
-    void* data;
+    Dict data;
 
     // Any metadata that describes the data
-    void* metadata;
+    Dict metadata;
 } DisplayData;
 
 typedef struct PyIn {
@@ -418,8 +430,8 @@ typedef struct PyOut {
     // data and metadata are identical to a display_data message.
     // the object being displayed is that passed to the display hook,
     // i.e. the *result* of the execution.
-    void* data;
-    void* metadata;
+    Dict data;
+    Dict metadata;
 } PyOut;
 
 typedef struct PyErr {
@@ -438,7 +450,10 @@ typedef struct PyErr {
     // how much of it to unpack.  But for now, let's start with a simple list
     // of strings, since that requires only minimal changes to ultratb as
     // written.
-    char** traceback;
+    struct {
+        char** list;
+        size_t size;
+    } traceback;
 } PyErr;
 
 typedef struct Status {
@@ -522,7 +537,7 @@ typedef struct Msg {
     } idents;
     Header header;
     Header* parent_header;
-    void* metadata;
+    void* metadata; // TODO: Metadata
     Content content;
 } Msg;
 
