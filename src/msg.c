@@ -394,10 +394,9 @@ void load_header(const json_t* json, Header* header) {
 }
 
 json_t* dump_header(const Header* header) {
-    json_t* json = NULL;
+    json_t* json = json_object();
 
     if (header != NULL) {
-        json = json_object();
         json_object_set(json, "msg_id", json_string(header->msg_id));
         json_object_set(json, "username", json_string(header->username));
         json_object_set(json, "session", json_string(header->session));
