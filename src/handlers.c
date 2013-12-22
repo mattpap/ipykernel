@@ -10,7 +10,7 @@ void execute_handler(void* socket, Msg* msg) {
     send_status(state_busy);
     printf("%s\n", msg->content.execute_request.code);
     send_ok(msg, n);
-    send_status(state_starting);
+    send_status(state_idle);
 }
 
 void complete_handler(void* socket, Msg* msg) {
