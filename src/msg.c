@@ -279,7 +279,12 @@ static json_t* dump_object_info_reply(const ObjectInfoReply* object_info_reply) 
         json_object_set(json, "length", json_string(object_info_reply->found_reply.length));
         json_object_set(json, "file", json_string(object_info_reply->found_reply.file));
         json_object_set(json, "definition", json_string(object_info_reply->found_reply.definition));
-        // TODO: ArgSpec argspec
+        json_t* argspec = json_object();
+        json_object_set(argspec, "args", dump_string_list(&object_info_reply->found_reply.argspec.args));
+        json_object_set(argspec, "varargs", json_string(object_info_reply->found_reply.argspec.varargs));
+        json_object_set(argspec, "varkw", json_string(object_info_reply->found_reply.argspec.varkw));
+        json_object_set(argspec, "defaults", dump_string_list(&object_info_reply->found_reply.argspec.defaults));
+        json_object_set(json, "argspec", argspec);
         json_object_set(json, "init_definition", json_string(object_info_reply->found_reply.init_definition));
         json_object_set(json, "docstring", json_string(object_info_reply->found_reply.docstring));
         json_object_set(json, "init_docstring", json_string(object_info_reply->found_reply.init_docstring));

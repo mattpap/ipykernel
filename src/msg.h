@@ -138,7 +138,7 @@ typedef struct ObjectInfoRequest {
 
 typedef struct ArgSpec {
     // The names of all the arguments
-    char** args;
+    StringList args;
     // The name of the varargs (*args), if any
     char* varargs;
     // The name of the varkw (**kw), if any
@@ -147,7 +147,7 @@ typedef struct ArgSpec {
     // that these must be matched *in reverse* with the 'args'
     // list above, since the first positional args have no default
     // value at all.
-    char** defaults;
+    StringList defaults;
 } ArgSpec;
 
 typedef struct ObjectInfoNotFoundReply {
