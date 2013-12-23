@@ -73,6 +73,15 @@ void msg_send(void* socket, const Msg* msg) {
 
     signature = hmac(header, parent_header, metadata, content, NULL);
 
+    if (options.verbose) {
+        fprintf(stdout, "MSG send:\n");
+        fprintf(stdout, "signature: %s\n", signature);
+        fprintf(stdout, "header: %s\n", header);
+        fprintf(stdout, "parent_header: %s\n", parent_header);
+        fprintf(stdout, "metadata: %s\n", metadata);
+        fprintf(stdout, "content: %s\n", content);
+    }
+
     for (i = 0; i < msg->idents.size; i++)
         ssend(socket, msg->idents.list[i], true);
 

@@ -4,12 +4,36 @@
 #include "globals.h"
 #include "msg.h"
 #include "communication.h"
+#include "interpreter.h"
 
 static int execution_count = 0;
+
+static const char* text_plain = "text/plain";
 
 void execute_handler(void* socket, Msg* msg) {
     send_status(state_busy);
     execution_count++;
+
+    char* out;
+    char* err;
+
+    eval(msg->content.execute_request.code, &out, &err);
+
+    KeyValue* data = malloc(1*sizeof(KeyValue));
+    data[0].key = (char*)text_plain;
+    data[0].value = out;
+
+    PyOut pyout = {
+        .execution_count = execution_count,
+        .data = { .list = data, .size = 1 },
+        .metadata = { .list = NULL, .size = 0 },
+    };
+    Content pyout_content = { .pyout = pyout };
+    publish_reply(msg, msg_pyout, &pyout_content);
+
+    free(out);
+    free(err);
+
     send_ok(msg, execution_count);
     send_status(state_idle);
 }
