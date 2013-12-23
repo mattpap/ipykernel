@@ -4,6 +4,11 @@
 #include <stdbool.h>
 #include <uuid/uuid.h>
 
+typedef struct StringList {
+    char** list;
+    size_t size;
+} StringList;
+
 typedef struct KeyValue {
     char* key;
     char* value;
@@ -59,10 +64,7 @@ typedef struct ExecuteRequest {
     // A list of variable names from the user's namespace to be retrieved.
     // What returns is a rich representation of each variable (dict keyed by name).
     // See the display_data content for the structure of the representation data.
-    struct {
-        char** list;
-        size_t size;
-    } user_variables;
+    StringList user_variables;
 
     // Similarly, a dict mapping names to expressions to be evaluated in the
     // user's dict.
@@ -83,10 +85,7 @@ typedef struct ExecuteOkReply {
     Dict payload;
 
     // Results for the user_variables and user_expressions.
-    struct {
-        char** list;
-        size_t size;
-    } user_variables;
+    StringList user_variables;
     Dict user_expressions;
 } ExecuteOkReply;
 
@@ -104,10 +103,7 @@ typedef struct ExecuteErrorReply {
     // how much of it to unpack.  But for now, let's start with a simple list
     // of strings, since that requires only minimal changes to ultratb as
     // written.
-    struct {
-        char** list;
-        size_t size;
-    } traceback;
+    StringList traceback;
 } ExecuteErrorReply;
 
 typedef struct ExecuteAbortReply {
@@ -261,10 +257,7 @@ typedef struct CompleteRequest {
 typedef struct CompleteReply {
     // The list of all matches to the completion request, such as
     // ['a.isalnum', 'a.isalpha'] for the above example.
-    struct {
-        char** list;
-        size_t size;
-    } matches;
+    StringList matches;
 
     // the substring of the matched text
     // this is typically the common prefix of the matches,
@@ -456,10 +449,7 @@ typedef struct PyErr {
     // how much of it to unpack.  But for now, let's start with a simple list
     // of strings, since that requires only minimal changes to ultratb as
     // written.
-    struct {
-        char** list;
-        size_t size;
-    } traceback;
+    StringList traceback;
 } PyErr;
 
 typedef struct Status {
@@ -537,10 +527,7 @@ typedef union Content {
 } Content;
 
 typedef struct Msg {
-    struct {
-        char** list;
-        int size;
-    } idents;
+    StringList idents;
     Header header;
     Header* parent_header;
     Dict metadata;

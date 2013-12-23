@@ -114,12 +114,47 @@ const char* dump_execution_state(ExecutionState execution_state) {
     return execution_states[(int)execution_state];
 }
 
+static void load_string_list(const json_t* json, StringList* strings) {
+    if (!json_is_array(json)) {
+        fprintf(stderr, "error: expected a JSON array, got %s\n", json_strof(json));
+        exit(1);
+    }
+
+    strings->list = NULL;
+    strings->size = json_array_size(json);
+
+    if (strings->size != 0) {
+        strings->list = malloc(strings->size*sizeof(char*));
+
+        size_t i;
+        json_t* value;
+
+        json_array_foreach((json_t*)json, i, value) {
+            if (!json_is_string(value)) {
+                fprintf(stderr, "error: expected value of type string at %ld index, got %s\n", i, json_strof(value));
+                exit(1);
+            }
+
+            strings->list[i] = strdup(json_string_value(value));
+        }
+    }
+}
+
+static json_t* dump_string_list(const StringList* strings) {
+    size_t i;
+    json_t* array = json_array();
+    for (i = 0; i < strings->size; i++)
+        json_array_append_new(array, json_string(strings->list[i]));
+    return array;
+}
+
 static void load_dict(const json_t* json, Dict* dict) {
     if (!json_is_object(json)) {
         fprintf(stderr, "error: expected a JSON object, got %s\n", json_strof(json));
         exit(1);
     }
 
+    dict->list = NULL;
     dict->size = json_object_size(json);
 
     if (dict->size != 0) {
@@ -132,7 +167,7 @@ static void load_dict(const json_t* json, Dict* dict) {
 
         json_object_foreach((json_t*)json, key, value) {
             if (!json_is_string(value)) {
-                fprintf(stderr, "error: expected value of type string for \"%s\" key, got %s\n", key, json_strof(json));
+                fprintf(stderr, "error: expected value of type string for \"%s\" key, got %s\n", key, json_strof(value));
                 exit(1);
             }
 
@@ -156,8 +191,7 @@ static void load_execute_request(const json_t* json, ExecuteRequest* execute_req
     execute_request->code = json_get_string_key(json, "code");
     execute_request->silent = json_get_bool_key(json, "silent");
     execute_request->store_history = json_get_bool_key(json, "store_history");
-    execute_request->user_variables.list = NULL; // TODO
-    execute_request->user_variables.size = 0;
+    load_string_list(json_object_get(json, "user_variables"), &execute_request->user_variables);
     load_dict(json_object_get(json, "user_expressions"), &execute_request->user_expressions);
     execute_request->allow_stdin = json_get_bool_key(json, "allow_stdin");
 }
@@ -203,23 +237,19 @@ static void load_input_reply(const json_t* json, InputReply* input_reply) {
 }
 
 static json_t* dump_execute_reply(const ExecuteReply* execute_reply) {
-    size_t i;
     json_t* json = json_object();
     json_object_set(json, "execution_count", json_integer(execute_reply->execution_count));
     json_object_set(json, "status", json_string(dump_execution_status(execute_reply->status)));
     switch (execute_reply->status) {
         case status_ok:
             json_object_set(json, "payload", dump_dict(&execute_reply->ok_reply.payload));
-            json_object_set(json, "user_variables", json_array()); // TODO
+            json_object_set(json, "user_variables", dump_string_list(&execute_reply->ok_reply.user_variables));
             json_object_set(json, "user_expressions", dump_dict(&execute_reply->ok_reply.user_expressions));
             break;
         case status_error:
             json_object_set(json, "ename", json_string(execute_reply->error_reply.ename));
             json_object_set(json, "evalue", json_string(execute_reply->error_reply.evalue));
-            json_t* traceback = json_array();
-            for (i = 0; i < execute_reply->error_reply.traceback.size; i++)
-                json_array_append_new(traceback, json_string(execute_reply->error_reply.traceback.list[i]));
-            json_object_set(json, "traceback", traceback);
+            json_object_set(json, "traceback", dump_string_list(&execute_reply->error_reply.traceback));
             break;
         case status_abort:
             break;
@@ -228,14 +258,8 @@ static json_t* dump_execute_reply(const ExecuteReply* execute_reply) {
 }
 
 static json_t* dump_complete_reply(const CompleteReply* complete_reply) {
-    size_t i;
     json_t* json = json_object();
-    json_t* matches = json_array();
-
-    for (i = 0; i < complete_reply->matches.size; i++)
-        json_array_append_new(matches, json_string(complete_reply->matches.list[i]));
-
-    json_object_set(json, "matches", matches);
+    json_object_set(json, "matches", dump_string_list(&complete_reply->matches));
     json_object_set(json, "matched_text", json_string(complete_reply->matched_text));
     json_object_set(json, "status", json_string(dump_execution_status(complete_reply->status)));
     return json;
@@ -363,15 +387,11 @@ static json_t* dump_pyout(const PyOut* pyout) {
 }
 
 static json_t* dump_pyerr(const PyErr* pyerr) {
-    size_t i;
     json_t* json = json_object();
     json_object_set(json, "execution_count", json_integer(pyerr->execution_count));
     json_object_set(json, "ename", json_string(pyerr->ename));
     json_object_set(json, "evalue", json_string(pyerr->evalue));
-    json_t* traceback = json_array();
-    for (i = 0; i < pyerr->traceback.size; i++)
-        json_array_append_new(traceback, json_string(pyerr->traceback.list[i]));
-    json_object_set(json, "traceback", traceback);
+    json_object_set(json, "traceback", dump_string_list(&pyerr->traceback));
     return json;
 }
 
