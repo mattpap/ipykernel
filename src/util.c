@@ -70,6 +70,13 @@ char* dumps(const json_t* json) {
 
 char* json_get_string_key(const json_t* obj, const char* key) {
     json_t* value = json_object_get(obj, key);
+    if (value == NULL) {
+        fprintf(stderr, "error: missing required \"%s\" key\n", key);
+        exit(1);
+    }
+    if (json_is_null(value)) {
+        return NULL;
+    }
     if (!json_is_string(value)) {
         fprintf(stderr, "error: \"%s\" key must be a string, got %s\n", key, json_strof(value));
         exit(1);
