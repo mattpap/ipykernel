@@ -17,7 +17,7 @@ void execute_handler(void* socket, Msg* msg) {
     char* out;
     char* err;
 
-    eval(msg->content.execute_request.code, &out, &err);
+    evaluate(msg->content.execute_request.code, &out, &err);
 
     KeyValue* data = malloc(1*sizeof(KeyValue));
     data[0].key = (char*)text_plain;
@@ -39,13 +39,25 @@ void execute_handler(void* socket, Msg* msg) {
 }
 
 void complete_handler(void* socket, Msg* msg) {
+    const char* line = msg->content.complete_request.line;
+    int pos = msg->content.complete_request.cursor_pos;
+
+    char** list;
+    int size;
+    char* text;
+
+    complete(line, pos, &list, &size, &text);
+
     CompleteReply complete_reply = {
         .status = status_ok,
-        .matches = { .list = NULL, .size = 0 },
-        .matched_text = msg->content.complete_request.text,
+        .matches = { .list = list, .size = size },
+        .matched_text = text,
     };
     Content content = { .complete_reply = complete_reply };
     send_reply(socket, msg, msg_complete_reply, &content);
+
+    free(list);
+    free(text);
 }
 
 static const char* aldor = "aldor";

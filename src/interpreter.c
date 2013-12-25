@@ -8,11 +8,9 @@
 #include <axltop.h>
 #include <bloop.h>
 #include <ccomp.h>
-#include <cmdline.h>
 #include <compcfg.h>
 #include <debug.h>
 #include <emit.h>
-#include <file.h>
 #include <fint.h>
 #include <fintphase.h>
 #include <fluid.h>
@@ -37,7 +35,6 @@ static void compFintBreakHandler0(int signo) {
 
 static void feval(FILE* fin, FILE* fout, EmitInfo finfo) {
     Stab stab = stabFile();
-    // stabPrint(stdout, stab);
     AbSyn ab;
     Foam foam;
     int lineno = 0;
@@ -84,10 +81,10 @@ static void feval(FILE* fin, FILE* fout, EmitInfo finfo) {
 static FileName fn;
 static EmitInfo finfo;
 
-void eval(char* code, char** out, char** err) {
+void evaluate(const char* code, char** out, char** err) {
     size_t out_size, err_size;
 
-    FILE* fin = fmemopen(code, strlen(code), "r");
+    FILE* fin = fmemopen((char*)code, strlen(code), "r");
     FILE* fout = open_memstream(out, &out_size);
     FILE* ferr = open_memstream(err, &err_size);
 
@@ -98,6 +95,13 @@ void eval(char* code, char** out, char** err) {
     fclose(fin);
     fclose(fout);
     fclose(ferr);
+}
+
+void complete(const char* line, int pos, char*** matches, int* count, char** text) {
+    // Stab stab = stabFile();
+    *matches = NULL;
+    *count = 0;
+    *text = malloc(0);
 }
 
 void init_interpreter(int argc, char** argv) {
