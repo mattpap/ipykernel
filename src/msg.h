@@ -4,10 +4,11 @@
 #include <stdbool.h>
 #include <uuid/uuid.h>
 
-typedef struct StringList {
-    char** list;
-    size_t size;
-} StringList;
+#define List(Type) struct { Type* list; size_t size; }
+
+typedef char* String;
+
+typedef List(String) StringList;
 
 typedef struct KeyValue {
     char* key;
@@ -43,7 +44,7 @@ typedef enum ExecutionState {
 
 typedef struct ExecuteRequest {
     // Source code to be executed by the kernel, one or more lines.
-    char* code;
+    String code;
 
     // A boolean flag which, if True, signals the kernel to execute
     // this code as quietly as possible.  This means that the kernel
@@ -91,9 +92,9 @@ typedef struct ExecuteOkReply {
 
 typedef struct ExecuteErrorReply {
     // Exception name, as a string
-    char* ename;
+    String ename;
     // Exception value, as a string
-    char* evalue;
+    String evalue;
 
     // The traceback will contain a list of frames, represented each as a
     // string.  For now we'll stick to the existing design of ultraTB, which
@@ -129,7 +130,7 @@ typedef struct ExecuteReply {
 typedef struct ObjectInfoRequest {
     // The (possibly dotted) name of the object to be searched in all
     // relevant namespaces
-    char* oname;
+    String oname;
 
     // The level of detail desired.  The default (0) is equivalent to typing
     // 'x?' at the prompt, 1 is equivalent to 'x??'.
@@ -140,9 +141,9 @@ typedef struct ArgSpec {
     // The names of all the arguments
     StringList args;
     // The name of the varargs (*args), if any
-    char* varargs;
+    String varargs;
     // The name of the varkw (**kw), if any
-    char* varkw;
+    String varkw;
     // The values (as strings) of all default arguments.  Note
     // that these must be matched *in reverse* with the 'args'
     // list above, since the first positional args have no default
@@ -160,31 +161,31 @@ typedef struct ObjectInfoFoundReply {
 
     // The name of the namespace where the object was found ('builtin',
     // 'magics', 'alias', 'interactive', etc.)
-    char* namespace;
+    String namespace;
 
     // The type name will be type.__name__ for normal Python objects, but it
     // can also be a string like 'Magic function' or 'System alias'
-    char* type_name;
+    String type_name;
 
     // The string form of the object, possibly truncated for length if
     // detail_level is 0
-    char* string_form;
+    String string_form;
 
     // For objects with a __class__ attribute this will be set
-    char* base_class;
+    String base_class;
 
     // For objects with a __len__ attribute this will be set
-    char* length;
+    String length;
 
     // If the object is a function, class or method whose file we can find,
     // we give its full path
-    char* file;
+    String file;
 
     // For pure Python callable objects, we can reconstruct the object
     // definition line which provides its call signature.  For convenience this
     // is returned as a single 'definition' field, but below the raw parts that
     // compose it are also returned as the argspec field.
-    char* definition;
+    String definition;
 
     // The individual parts that together form the definition string.  Clients
     // with rich display capabilities may use this to provide a richer and more
@@ -195,32 +196,32 @@ typedef struct ObjectInfoFoundReply {
 
     // For instances, provide the constructor signature (the definition of
     // the __init__ method):
-    char* init_definition;
+    String init_definition;
 
     // Docstrings: for any object (function, method, module, package) with a
     // docstring, we show it.  But in addition, we may provide additional
     // docstrings.  For example, for instances we will show the constructor
     // and class docstrings as well, if available.
-    char* docstring;
+    String docstring;
 
     // For instances, provide the constructor and class docstrings
-    char* init_docstring;
-    char* class_docstring;
+    String init_docstring;
+    String class_docstring;
 
     // If it's a callable object whose call method has a separate docstring and
     // definition line:
-    char* call_def;
-    char* call_docstring;
+    String call_def;
+    String call_docstring;
 
     // If detail_level was 1, we also try to find the source code that
     // defines the object, if possible.  The string 'None' will indicate
     // that no source was found.
-    char* source;
+    String source;
 } ObjectInfoFoundReply;
 
 typedef struct ObjectInfoReply {
     // The name the object was requested under
-    char* name;
+    String name;
 
     // Boolean flag indicating whether the named object was found or not.  If
     // it's false, all other fields will be empty.
@@ -237,18 +238,18 @@ typedef struct CompleteRequest {
     // this may be an empty string if the frontend does not do any lexing,
     // in which case the kernel must figure out the completion
     // based on 'line' and 'cursor_pos'.
-    char* text;
+    String text;
 
     // The full line, such as 'print a.is'.  This allows completers to
     // make decisions that may require information about more than just the
     // current word.
-    char* line;
+    String line;
 
     // The entire block of text where the line is.  This may be useful in the
     // case of multiline completions where more context may be needed.  Note: if
     // in practice this field proves unnecessary, remove it to lighten the
     // messages.
-    char* block;
+    String block;
 
     // The position of the cursor where the user hit 'TAB' on the line.
     int cursor_pos;
@@ -263,7 +264,7 @@ typedef struct CompleteReply {
     // this is typically the common prefix of the matches,
     // and the text that is already in the block that would be replaced by the full completion.
     // This would be 'a.is' in the above example.
-    char* matched_text;
+    String matched_text;
 
     // status should be 'ok' unless an exception was raised during the request,
     // in which case it should be 'error', along with the usual error message content
@@ -295,7 +296,7 @@ typedef struct HistoryRequest {
 
     // If hist_access_type is 'search', get cells matching the specified glob
     // pattern (with * and ? as wildcards).
-    char* pattern;
+    String pattern;
 
     // If hist_access_type is 'search' and unique is true, do not
     // include duplicated history.  Default is false.
@@ -305,8 +306,8 @@ typedef struct HistoryRequest {
 typedef struct HistoryItem {
     int session;
     int line_number;
-    char* input;
-    char* output;
+    String input;
+    String output;
 } HistoryItem;
 
 typedef struct HistoryReply {
@@ -314,10 +315,7 @@ typedef struct HistoryReply {
     // (session, line_number, input) or
     // (session, line_number, (input, output)),
     // depending on whether output was False or True, respectively.
-    struct {
-        HistoryItem* list;
-        size_t size;
-    } history;
+    List(HistoryItem) history;
 } HistoryReply;
 
 typedef struct ConnectRequest {
@@ -346,7 +344,7 @@ typedef struct IPythonVersion {
     int major;
     int minor;
     int maintenance;
-    char* build;
+    String build;
 } IPythonVersion;
 
 typedef struct LanguageVersion {
@@ -376,7 +374,7 @@ typedef struct KernelInfoReply {
 
     // Programming language in which kernel is implemented (mandatory).
     // Kernel included in IPython returns 'python'.
-    char* language;
+    String language;
 } KernelInfoReply;
 
 typedef struct ShutdownRequest {
@@ -391,15 +389,15 @@ typedef struct ShutdownReply {
 
 typedef struct Stream {
     // The name of the stream is one of 'stdout', 'stderr'
-    char* name;
+    String name;
 
     // The data is an arbitrary string to be written to that stream
-    char* data;
+    String data;
 } Stream;
 
 typedef struct DisplayData {
     // Who create the data
-    char* source;
+    String source;
 
     // The data dict contains key/value pairs, where the kids are MIME
     // types and the values are the raw data of the representation in that
@@ -412,7 +410,7 @@ typedef struct DisplayData {
 
 typedef struct PyIn {
     // Source code to be executed, one or more lines
-    char* code;
+    String code;
 
     // The counter for this execution is also provided so that clients can
     // display it, since IPython automatically creates variables called _iN
@@ -437,9 +435,9 @@ typedef struct PyErr {
     int execution_count;
 
     // Exception name, as a string
-    char* ename;
+    String ename;
     // Exception value, as a string
-    char* evalue;
+    String evalue;
 
     // The traceback will contain a list of frames, represented each as a
     // string.  For now we'll stick to the existing design of ultraTB, which
@@ -460,11 +458,11 @@ typedef struct Status {
 } Status;
 
 typedef struct InputRequest {
-    char* prompt;
+    String prompt;
 } InputRequest;
 
 typedef struct InputReply {
-    char* value;
+    String value;
 } InputReply;
 
 typedef enum MsgType {
@@ -495,9 +493,9 @@ typedef enum MsgType {
 #define NUM_MSG_TYPE (msg_input_reply+1)
 
 typedef struct Header {
-    char* msg_id;
-    char* username;
-    char* session;
+    String msg_id;
+    String username;
+    String session;
     MsgType msg_type;
 } Header;
 
