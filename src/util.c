@@ -86,6 +86,10 @@ char* json_get_string_key(const json_t* obj, const char* key) {
 
 int json_get_integer_key(const json_t* obj, const char* key) {
     json_t* value = json_object_get(obj, key);
+    if (value == NULL) {
+        fprintf(stderr, "error: missing required \"%s\" key\n", key);
+        exit(1);
+    }
     if (!json_is_integer(value)) {
         fprintf(stderr, "error: \"%s\" key must be an integer, got %s\n", key, json_strof(value));
         exit(1);
@@ -95,6 +99,10 @@ int json_get_integer_key(const json_t* obj, const char* key) {
 
 bool json_get_bool_key(const json_t* obj, const char* key) {
     json_t* value = json_object_get(obj, key);
+    if (value == NULL) {
+        fprintf(stderr, "error: missing required \"%s\" key\n", key);
+        exit(1);
+    }
     if (!json_is_boolean(value)) {
         fprintf(stderr, "error: \"%s\" key must be a boolean, got %s\n", key, json_strof(value));
         exit(1);
