@@ -229,7 +229,7 @@ static void load_kernel_info_request(const json_t* json, KernelInfoRequest* kern
 }
 
 static void load_shutdown_request(const json_t* json, ShutdownRequest* shutdown_request) {
-    pass;
+    shutdown_request->restart = json_get_bool_key(json, "restart");
 }
 
 static void load_input_reply(const json_t* json, InputReply* input_reply) {
