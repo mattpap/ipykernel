@@ -202,9 +202,9 @@ static void load_object_info_request(const json_t* json, ObjectInfoRequest* obje
 }
 
 static void load_complete_request(const json_t* json, CompleteRequest* complete_request) {
-    complete_request->text = json_get_string_key(json, "code");
-    complete_request->line = json_get_string_key(json, "code");
-    complete_request->block = json_get_string_key(json, "code");
+    complete_request->text = json_get_string_key(json, "text");
+    complete_request->line = json_get_string_key(json, "line");
+    complete_request->block = json_get_string_key(json, "block");
     complete_request->cursor_pos = json_get_integer_key(json, "cursor_pos");
 }
 
