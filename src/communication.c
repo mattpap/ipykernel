@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "globals.h"
+#include "zeromq.h"
 #include "json.h"
 #include "util.h"
 #include "msg.h"

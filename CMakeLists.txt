@@ -27,6 +27,7 @@ add_executable(ialdor src/ialdor.c
                       src/interpreter.c
                       src/handlers.c
                       src/msg.c
+                      src/zeromq.c
                       src/json.c
                       src/util.c
                       src/concat.c
