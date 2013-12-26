@@ -30,7 +30,7 @@ Now you can build and run IAldor:
 ```
 $ git clone git@github.com:mattpap/IAldor.git
 $ cd IAldor
-$ cmake -DALDOR=../aldor
+$ cmake -DCMAKE_C_COMPILER=/usr/bin/clang -DALDOR=../aldor
 $ make
 $ ALDORROOT=$HOME/aldor ./ialdor
 ```
