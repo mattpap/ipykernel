@@ -4,6 +4,7 @@
 #include "globals.h"
 #include "zeromq.h"
 #include "json.h"
+#include "hmac.h"
 #include "util.h"
 #include "msg.h"
 

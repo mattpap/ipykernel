@@ -10,11 +10,13 @@
 #include "eventloop.h"
 #include "interpreter.h"
 #include "communication.h"
+#include "hmac.h"
 
 int main(int argc, char** argv) {
     init_options(&argc, &argv, &options);
     init_profile(&profile, options.profile);
     init_sockets(&sockets);
+    init_hmac();
     init_interpreter(argc, argv);
     init_heartbeat();
 
