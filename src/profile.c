@@ -2,9 +2,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <jansson.h>
-
 #include "profile.h"
+#include "json.h"
 #include "util.h"
 
 void default_profile(Profile* profile) {

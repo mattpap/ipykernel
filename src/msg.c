@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
-#include <jansson.h>
 
 #include "msg.h"
+#include "json.h"
 #include "util.h"
 
 #define pass
