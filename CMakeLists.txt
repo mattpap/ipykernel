@@ -30,7 +30,7 @@ add_executable(ialdor src/ialdor.c
                       src/zeromq.c
                       src/hmac.c
                       src/json.c
-                      src/util.c
+                      src/uuid.c
                       src/concat.c
                       ${ALDOR_SRC}/aldor-axlcomp.o
                       ${ALDOR_SRC}/aldor-cmdline.o)

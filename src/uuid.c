@@ -1,6 +1,4 @@
 #include <stdlib.h>
-#include <string.h>
-
 #include <uuid/uuid.h>
 
 #define UUID_STRING_SIZE 36

@@ -3,7 +3,6 @@
 
 #include "msg.h"
 #include "json.h"
-#include "util.h"
 
 #define pass
 

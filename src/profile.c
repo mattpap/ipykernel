@@ -4,7 +4,7 @@
 
 #include "profile.h"
 #include "json.h"
-#include "util.h"
+#include "uuid.h"
 
 void default_profile(Profile* profile) {
     int port0 = 5678;

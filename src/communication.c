@@ -5,7 +5,7 @@
 #include "zeromq.h"
 #include "json.h"
 #include "hmac.h"
-#include "util.h"
+#include "uuid.h"
 #include "msg.h"
 
 static const char* DELIMITER = "<IDS|MSG>";
