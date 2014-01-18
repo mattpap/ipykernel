@@ -1,5 +1,5 @@
-#ifndef __IALDOR_HANDLERS_H__
-#define __IALDOR_HANDLERS_H__
+#ifndef __IPYKERNEL_HANDLERS_H__
+#define __IPYKERNEL_HANDLERS_H__
 
 #include "msg.h"
 
@@ -11,4 +11,4 @@ void shutdown_handler(void* socket, Msg* msg);
 void object_info_handler(void* socket, Msg* msg);
 void history_handler(void* socket, Msg* msg);
 
-#endif // __IALDOR_HANDLERS_H__
+#endif // __IPYKERNEL_HANDLERS_H__

@@ -1,6 +1,6 @@
-#ifndef __IALDOR_CONCAT_H__
-#define __IALDOR_CONCAT_H__
+#ifndef __IPYKERNEL_CONCAT_H__
+#define __IPYKERNEL_CONCAT_H__
 
 char *concat(const char *s1, ...);
 
-#endif // __IALDOR_CONCAT_H__
+#endif // __IPYKERNEL_CONCAT_H__

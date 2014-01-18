@@ -1,5 +1,5 @@
-#ifndef __IALDOR_JSON_H__
-#define __IALDOR_JSON_H__
+#ifndef __IPYKERNEL_JSON_H__
+#define __IPYKERNEL_JSON_H__
 
 #include <stdbool.h>
 #include <jansson.h>
@@ -31,4 +31,4 @@ char* json_get_string_key(const json_t* obj, const char* key);
 int json_get_integer_key(const json_t* obj, const char* key);
 bool json_get_bool_key(const json_t* obj, const char* key);
 
-#endif // __IALDOR_JSON_H__
+#endif // __IPYKERNEL_JSON_H__

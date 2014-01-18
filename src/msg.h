@@ -1,14 +1,10 @@
-#ifndef __IALDOR_MSG_H__
-#define __IALDOR_MSG_H__
+#ifndef __IPYKERNEL_MSG_H__
+#define __IPYKERNEL_MSG_H__
 
 #include <stdbool.h>
 #include <uuid/uuid.h>
 
-#define List(Type) struct { Type* list; size_t size; }
-
-typedef char* String;
-
-typedef List(String) StringList;
+#include "types.h"
 
 typedef struct KeyValue {
     char* key;
@@ -546,4 +542,4 @@ json_t* dump_content(MsgType msg_type, const Content* content);
 
 const char* dump_msg_type(MsgType msg_type);
 
-#endif // __IALDOR_MSG_H__
+#endif // __IPYKERNEL_MSG_H__

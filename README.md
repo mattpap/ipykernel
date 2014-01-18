@@ -1,42 +1,32 @@
-# IAldor
+# ipykernel
 
-**IAldor** is an [Aldor-language](https://github.com/pippijn/aldor) backend for [IPython](http://ipython.org).
+**IPyKernel** is a pure C implementation of [IPython](http://ipython.org)'s
+messaging protocol.
 
 ## Requirements
 
 * [IPython](http://ipython.org/ipython-doc/stable/install/install.html) 1.0+
-* [Aldor](https://github.com/pippijn/aldor) master
 * [ZeroMQ](http://zeromq.org) 2.x
 * [Jansson](http://www.digip.org/jansson/) 2.1+
 
 ## Building
 
-Make sure that appropriate versions of libzmq and libjansson are installed on your
-system. Next you have build and install Aldor:
-```
-$ git clone git@github.com:pippijn/aldor.git
-$ cd aldor/aldor
-$ ./autogen.sh
-$ ./configure --prefix=$HOME/aldor CFLAGS="-O0 -g -ggdb"
-$ make -j8
-$ make install
-$ cd ../..
-```
-Choose prefix and `CFLAGS` as you want and adjust `make -jN` according to your CPU's
-capabilities. This build procedure allows for root-less installtion and debugging
-with gdb.
+Make sure that appropriate versions of libzmq and libjansson are installed
+on your system. For example in Ubuntu install `libzmq-dev` and `libjansson-dev`
+using `apt-get`. Otherwise you can build those libraries from source. Clone
+https://github.com/zeromq/zeromq2-x and https://github.com/akheron/jansson/tree/2.5,
+and follow their instructions how to build and install those libraries.
 
-Now you can build and run IAldor:
+Now you can build ipykernel:
 ```
-$ git clone git@github.com:mattpap/IAldor.git
-$ cd IAldor
-$ cmake -DCMAKE_C_COMPILER=/usr/bin/clang -DALDOR=../aldor
+$ git clone git@github.com:mattpap/ipykernel.git
+$ cd ipykernel
+$ cmake -DCMAKE_C_COMPILER=/usr/bin/clang .
 $ make
-$ ALDORROOT=$HOME/aldor ./ialdor
 ```
-`ialdor` binary is statically linked with Aldor's compiler, but still needs configuration
-and include files, and Aldor standard library, etc., so you have to set up `ALDORROOT`
-anyway.
+This created `libipykernel.a` and `libipykernel.so`. If you want to use the system
+wide compiler (possibly `gcc`) then remove `CMAKE_C_COMPILER` from `cmake`'s argumet
+list.
 
 ## License
 

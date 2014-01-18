@@ -1,5 +1,5 @@
-#ifndef __IALDOR_COMMUNICATION_H__
-#define __IALDOR_COMMUNICATION_H__
+#ifndef __IPYKERNEL_COMMUNICATION_H__
+#define __IPYKERNEL_COMMUNICATION_H__
 
 #include "msg.h"
 
@@ -16,4 +16,4 @@ void send_abort(Msg* msg, int execution_count);
 void send_stream(Msg* msg, char* name, char* data);
 void send_stdin(Msg* msg, char* prompt);
 
-#endif // __IALDOR_COMMUNICATION_H__
+#endif // __IPYKERNEL_COMMUNICATION_H__

@@ -7,7 +7,7 @@ Makefile
 cmake_install.cmake
 install_manifest.txt
 
-/ialdor
+/libipykernel.*
 
 /profile*.json
 /*.ipynb

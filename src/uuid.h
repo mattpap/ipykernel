@@ -1,6 +1,6 @@
-#ifndef __IALDOR_UUID_H__
-#define __IALDOR_UUID_H__
+#ifndef __IPYKERNEL_UUID_H__
+#define __IPYKERNEL_UUID_H__
 
 char* uuid4();
 
-#endif // __IALDOR_UUID_H__
+#endif // __IPYKERNEL_UUID_H__

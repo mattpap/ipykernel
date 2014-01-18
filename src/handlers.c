@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "globals.h"
+#include "types.h"
 #include "msg.h"
 #include "communication.h"
 #include "interpreter.h"
@@ -42,32 +43,29 @@ void complete_handler(void* socket, Msg* msg) {
     const char* line = msg->content.complete_request.line;
     int pos = msg->content.complete_request.cursor_pos;
 
-    char** list;
-    int size;
-    char* text;
+    StringList matches;
+    char* matched_text;
 
-    complete(line, pos, &list, &size, &text);
+    complete(line, pos, &matches, &matched_text);
 
     CompleteReply complete_reply = {
         .status = status_ok,
-        .matches = { .list = list, .size = size },
-        .matched_text = text,
+        .matches = { .list = matches.list, .size = matches.size },
+        .matched_text = matched_text,
     };
     Content content = { .complete_reply = complete_reply };
     send_reply(socket, msg, msg_complete_reply, &content);
 
-    free(list);
-    free(text);
+    free(matches.list);
+    free(matched_text);
 }
-
-static const char* aldor = "aldor";
 
 void kernel_info_handler(void* socket, Msg* msg) {
     KernelInfoReply kernel_info_reply = {
         .protocol_version = { .major = 4, .minor = 0 },
         .ipython_version = NULL,
         .language_version = { .major = 1, .minor = 11 },
-        .language = (char*)aldor,
+        .language = strdup(kernel_lang),
     };
     Content content = { .kernel_info_reply = kernel_info_reply };
     send_reply(socket, msg, msg_kernel_info_reply, &content);

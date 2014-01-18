@@ -1,5 +1,5 @@
-#ifndef __IALDOR_SOCKETS_H__
-#define __IALDOR_SOCKETS_H__
+#ifndef __IPYKERNEL_SOCKETS_H__
+#define __IPYKERNEL_SOCKETS_H__
 
 typedef struct Sockets {
     void* ctx;
@@ -13,4 +13,4 @@ typedef struct Sockets {
 void init_sockets(Sockets* sockets);
 void free_sockets(Sockets* sockets);
 
-#endif // __IALDOR_SOCKETS_H__
+#endif // __IPYKERNEL_SOCKETS_H__

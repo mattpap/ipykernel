@@ -3,6 +3,7 @@
 
 #include "globals.h"
 #include "zeromq.h"
+#include "concat.h"
 #include "json.h"
 #include "hmac.h"
 #include "uuid.h"
@@ -142,14 +143,13 @@ void publish_reply(Msg* msg, MsgType msg_type, const Content* content) {
 }
 
 static const char* status_idents[] = { "status" };
-static const char* status_username = "aldor_kernel";
 
 void send_status(ExecutionState state) {
     Msg msg = {
         .idents = { .list = (char**)status_idents, .size = 1 },
         .header = {
             .msg_id = uuid4(),
-            .username = (char*)status_username,
+            .username = concat(kernel_lang, "_", "kernel"),
             .session = uuid4(),
             .msg_type = msg_status,
         },
