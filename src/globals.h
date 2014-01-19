@@ -9,6 +9,6 @@ Options options;
 Profile profile;
 Sockets sockets;
 
-char* kernel_lang;
+extern char* kernel_lang;
 
 #endif // __IPYKERNEL_GLOBALS_H__

@@ -21,17 +21,17 @@ CompleteFunction set_complete_func(CompleteFunction func) {
 void evaluate(const char* code, char** out, char** err) {
     size_t out_size, err_size;
 
-    FILE* fin = fmemopen((char*)code, strlen(code), "r");
+    // FILE* fin = fmemopen((char*)code, strlen(code), "r");
     FILE* fout = open_memstream(out, &out_size);
     FILE* ferr = open_memstream(err, &err_size);
 
-    (*evaluate_callback)(fin, fout, ferr);
+    (*evaluate_func)(code, fout, ferr);
 
-    fclose(fin);
+    // fclose(fin);
     fclose(fout);
     fclose(ferr);
 }
 
 void complete(const char* line, int pos, StringList* matches, char** matched_text) {
-    (*complete_callback)(line, pos, matches, matched_text);
+    (*complete_func)(line, pos, matches, matched_text);
 }

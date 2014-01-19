@@ -24,8 +24,8 @@ $ cd ipykernel
 $ cmake -DCMAKE_C_COMPILER=/usr/bin/clang .
 $ make
 ```
-This created `libipykernel.a` and `libipykernel.so`. If you want to use the system
-wide compiler (possibly `gcc`) then remove `CMAKE_C_COMPILER` from `cmake`'s argumet
+This created `src/libipykernel.a` and `examples/echo`. If you want to use the system
+wide compiler (possibly `gcc`) then remove `CMAKE_C_COMPILER` from `cmake`'s argument
 list.
 
 ## License
