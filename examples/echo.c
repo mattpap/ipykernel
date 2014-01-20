@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "types.h"
 #include "globals.h"
@@ -13,7 +14,13 @@
 
 char* kernel_lang = "echo";
 
-void evaluate_func(const char* code, FILE* out, FILE* err) {
+void evaluate_func(const char* input_code, FILE* out, FILE* err) {
+    char* code = strdup(input_code);
+    size_t len = strlen(code);
+
+    if (code[len-1] == '\n')
+        code[len-1] = '\0';
+
     fprintf(out, "echo: %s", code);
 }
 
