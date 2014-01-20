@@ -24,9 +24,32 @@ $ cd ipykernel
 $ cmake -DCMAKE_C_COMPILER=/usr/bin/clang .
 $ make
 ```
-This created `src/libipykernel.a` and `examples/echo`. If you want to use the system
-wide compiler (possibly `gcc`) then remove `CMAKE_C_COMPILER` from `cmake`'s argument
-list.
+This created `src/libipykernel.a` and built examples in `examples/`. If you want to
+use the system wide compiler (possibly `gcc`) then remove `CMAKE_C_COMPILER` from
+`cmake`'s argument list.
+
+## Examples
+
+Start `examples/echo` in one terminal:
+```bash
+$ examples/echo
+connect ipython with --existing profile-30914.json
+```
+Now in another terminal issue:
+```bash
+ipython console --existing profile-30914.json
+Python 2.7.5 |Anaconda 1.7.0 (64-bit)| (default, Oct 25 2013, 18:42:10)
+Type "copyright", "credits" or "license" for more information.
+
+In [1]: Hi!
+Out[1]: echo: Hi!
+```
+This simple kernel just echoes what you enter at the command prompt. By using command
+line options you can later reuse existing profile as follows:
+```bash
+$ examples/echo --profile profile-30914.json
+```
+Add ``--verbose`` option to see flow of messages between this kernel and IPython.
 
 ## License
 
